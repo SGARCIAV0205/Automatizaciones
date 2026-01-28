@@ -1,0 +1,99 @@
+# Variables de entorno
+.env
+*.env
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Entornos virtuales
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Archivos de Streamlit
+.streamlit/secrets.toml
+
+# Archivos temporales
+*.tmp
+*.log
+*.swp
+*.swo
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Archivos de testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Archivos de documentación
+docs/_build/
+
+# Archivos de datos sensibles
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Archivos de backup
+*.bak
+*.backup
+*~
+
+# Archivos de logs específicos
+*.log.*
+logs/
+
+# Archivos de cache
+.cache/
+*.cache
+
+# Archivos de configuración local
+config.local.*
+settings.local.*
+
+# Archivos de salida/outputs que pueden ser grandes
+outputs/
+reports/
+data/processed/
+*.xlsx
+*.docx
+*.pptx
+*.pdf
+
+# Excepciones (archivos que SÍ queremos incluir)
+!**/requirements.txt
+!**/README.md
+!**/config.yaml
+!**/.streamlit/config.toml
