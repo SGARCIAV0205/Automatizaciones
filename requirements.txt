@@ -16,3 +16,4 @@ srt>=3.5.3
 pypandoc>=1.13
 rapidfuzz>=3.9.6
 PyYAML==6.0.2
+feedparser>=6.0.11
