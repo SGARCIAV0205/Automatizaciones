@@ -64,43 +64,19 @@ try:
     # Permite imports como: import config, rt_ingest, etc.
     sys.path.insert(0, str(reporte_root))
 
-    # Usar importlib para cargar el módulo de forma más segura
-    from importlib.machinery import SourceFileLoader
-    
-    # Leer el contenido del archivo para verificar si tiene st.set_page_config
+    # Leer el contenido del archivo y modificarlo para evitar st.set_page_config
     with open(app_file, 'r', encoding='utf-8') as f:
         app_content = f.read()
     
-    # Si tiene st.set_page_config, crear una versión temporal sin él
-    if 'st.set_page_config(' in app_content:
-        # Crear archivo temporal modificado
-        temp_file = reporte_root / "app_temp.py"
-        modified_content = app_content.replace(
-            'st.set_page_config(',
-            '# st.set_page_config('
-        )
-        
-        with open(temp_file, 'w', encoding='utf-8') as f:
-            f.write(modified_content)
-        
-        # Cargar el archivo temporal
-        loader = SourceFileLoader("reporte_clientes_ui", str(temp_file))
-        reporte_module = loader.load_module()
-        
-        # Limpiar archivo temporal
-        temp_file.unlink()
-    else:
-        # Cargar directamente si no tiene conflictos
-        loader = SourceFileLoader("reporte_clientes_ui", str(app_file))
-        reporte_module = loader.load_module()
+    # Comentar la línea de st.set_page_config si existe
+    modified_content = app_content.replace(
+        'st.set_page_config(',
+        '# st.set_page_config('
+    )
+    
+    # Ejecutar el código modificado en un namespace local
+    local_namespace = {}
+    exec(modified_content, globals(), local_namespace)
 
 finally:
     sys.path = original_sys_path
-
-# ---------------------------------------------------------------------
-# Ejecutar UI si tiene función main
-# ---------------------------------------------------------------------
-if hasattr(reporte_module, "main") and callable(reporte_module.main):
-    reporte_module.main()
-else:
-    st.info("Módulo Reporte Clientes Trimestral cargado correctamente.")
