@@ -1,52 +1,69 @@
+# modules/radar_competidores.py
+
+import sys
 from pathlib import Path
-from pptx import Presentation
-from pptx.util import Inches, Pt
+import streamlit as st
 
-def build_competitor_radar(
-    competitors: list,
-    news_window_days: int,
-    theme: str,
-    title: str,
-    output_path: Path,
-    output_format: str = "pptx"
-) -> bool:
+
+def find_automatizaciones_root(start: Path) -> Path | None:
     """
-    Wrapper base de ejemplo (usa python-pptx).
-    Conecta tu scraper/generador real desde la página con el cargador dinámico.
+    Sube en el árbol de directorios hasta encontrar la carpeta 'Automatizaciones'.
     """
-    output_path.parent.mkdir(exist_ok=True, parents=True)
+    current = start.resolve()
+    for _ in range(10):  # límite de seguridad
+        if current.name.lower() == "automatizaciones":
+            return current
+        if current.parent == current:
+            break
+        current = current.parent
+    return None
 
-    prs = Presentation()
 
-    # Portada
-    slide = prs.slides.add_slide(prs.slide_layouts[5])
-    tx = slide.shapes.add_textbox(Inches(1), Inches(1.2), Inches(8), Inches(1.5))
-    tf = tx.text_frame
-    p = tf.paragraphs[0]
-    p.text = title
-    p.font.size = Pt(40)
-    p.font.bold = True
-    sub = tf.add_paragraph()
-    sub.text = f"Tema: {theme} | Ventana: {news_window_days} días"
-    sub.level = 1
+def run_radar_competidores():
+    """
+    Adaptador para ejecutar el módulo standalone
+    'Radar Competidores' desde el Asistente Virtual.
+    """
 
-    # Contenido por competidor (mock)
-    for comp in competitors:
-        s = prs.slides.add_slide(prs.slide_layouts[5])
-        tbox = s.shapes.add_textbox(Inches(1), Inches(1), Inches(8), Inches(0.8))
-        tf2 = tbox.text_frame
-        tf2.text = comp
-        tf2.paragraphs[0].font.size = Pt(32)
-        tf2.paragraphs[0].font.bold = True
+    # --------------------------------------------------
+    # 1) Encontrar raíz real 'Automatizaciones'
+    # --------------------------------------------------
+    automatizaciones_root = find_automatizaciones_root(Path(__file__))
 
-        body = s.shapes.add_textbox(Inches(1), Inches(2), Inches(8), Inches(4))
-        bf = body.text_frame
-        bf.text = "Principales titulares (ejemplo - integra tu scraper aquí):"
-        for i in range(1, 4):
-            pp = bf.add_paragraph()
-            pp.text = f"- Noticia {i} de {comp} (últimos {news_window_days} días)"
-            pp.level = 1
-            pp.font.size = Pt(16)
+    if automatizaciones_root is None:
+        st.error(
+            "No se pudo localizar la carpeta raíz 'Automatizaciones'. "
+            "Revisa la estructura del proyecto."
+        )
+        st.stop()
 
-    prs.save(output_path)
-    return True
+    modulo_root = automatizaciones_root / "Radar Competidores"
+
+    if not modulo_root.exists():
+        st.error(
+            f"No se encontró el módulo 'Radar Competidores' en:\n"
+            f"{automatizaciones_root}"
+        )
+        st.stop()
+
+    # --------------------------------------------------
+    # 2) Ejecutar módulo real
+    # --------------------------------------------------
+    original_sys_path = list(sys.path)
+    sys.path.insert(0, str(modulo_root))
+    sys.path.insert(0, str(modulo_root / "ui"))
+
+    try:
+        import app as radar_app
+
+        if not hasattr(radar_app, "main"):
+            st.error(
+                "El archivo app.py del módulo 'Radar Competidores' "
+                "no define una función main()."
+            )
+            st.stop()
+
+        radar_app.main(skip_page_config=True)
+
+    finally:
+        sys.path = original_sys_path

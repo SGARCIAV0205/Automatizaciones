@@ -44,11 +44,12 @@ def find_latest_report():
 
 
 # ----------------- UI -----------------
-def main():
-    st.set_page_config(
-        page_title="Radar de Competidores",
-        layout="wide",
-    )
+def main(skip_page_config=False):
+    if not skip_page_config:
+        st.set_page_config(
+            page_title="Radar de Competidores",
+            layout="wide",
+        )
 
     cfg = load_config()
 
