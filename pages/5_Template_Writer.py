@@ -27,7 +27,7 @@ sidebar_brand()
 render_openai_config_sidebar()
 
 # Título principal
-st.title("📄 Template Writer")
+st.title("Template Writer")
 st.markdown("Genera documentos o presentaciones a partir de una configuración y plantillas estándar.")
 
 # Buscar el módulo Template Writer
@@ -35,16 +35,16 @@ AUTOM_ROOT = Path(__file__).resolve().parents[2]
 template_root = AUTOM_ROOT / "Template Writer"
 
 if not template_root.exists():
-    st.warning("⚠️ Módulo 'Template Writer' no encontrado en la estructura del proyecto.")
-    st.info("📁 Ubicación esperada: " + str(template_root))
+    st.warning("Módulo 'Template Writer' no encontrado en la estructura del proyecto.")
+    st.info("Ubicación esperada: " + str(template_root))
     
     # Interfaz básica mientras tanto
-    st.subheader("🚧 Funcionalidad en Desarrollo")
+    st.subheader("Funcionalidad en Desarrollo")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("### 📝 Configuración del Documento")
+        st.markdown("### Configuración del Documento")
         
         tipo_doc = st.selectbox(
             "Tipo de documento",
@@ -65,7 +65,7 @@ if not template_root.exists():
         )
     
     with col2:
-        st.markdown("### ⚙️ Configuración Avanzada")
+        st.markdown("### Configuración Avanzada")
         
         plantilla = st.selectbox(
             "Plantilla base",
@@ -77,20 +77,20 @@ if not template_root.exists():
         incluir_graficos = st.checkbox("Incluir gráficos", value=True)
         incluir_tablas = st.checkbox("Incluir tablas", value=False)
         
-        st.markdown("### 🎨 Personalización")
+        st.markdown("### Personalización")
         color_primario = st.color_picker("Color primario", "#1f77b4")
         
-    if st.button("🚀 Generar Documento", type="primary"):
+    if st.button("Generar Documento", type="primary"):
         if titulo and contenido:
             with st.spinner("Generando documento..."):
                 # Simulación de generación
                 import time
                 time.sleep(2)
                 
-                st.success("✅ Documento generado exitosamente")
+                st.success("Documento generado exitosamente")
                 
                 # Mostrar resumen
-                st.markdown("### 📋 Resumen del Documento")
+                st.markdown("### Resumen del Documento")
                 st.info(f"""
                 **Tipo:** {tipo_doc}
                 **Título:** {titulo}
@@ -101,27 +101,27 @@ if not template_root.exists():
                 
                 # Botón de descarga simulado
                 st.download_button(
-                    label=f"📥 Descargar {formato}",
+                    label=f"Descargar {formato}",
                     data="Contenido del documento generado...",
                     file_name=f"{titulo.replace(' ', '_')}.{formato.lower()}",
                     mime="application/octet-stream"
                 )
         else:
-            st.warning("⚠️ Por favor completa el título y contenido")
+            st.warning("Por favor completa el título y contenido")
 
 else:
-    st.info("🔄 Cargando módulo completo de Template Writer...")
+    st.info("Cargando módulo completo de Template Writer...")
     # Aquí iría la carga del módulo real cuando esté disponible
 
 # Información adicional
 st.markdown("---")
-st.markdown("### 💡 Características del Template Writer")
+st.markdown("### Características del Template Writer")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown("""
-    **📄 Formatos Soportados**
+    **Formatos Soportados**
     - Microsoft Word (DOCX)
     - PowerPoint (PPTX)
     - PDF
@@ -130,7 +130,7 @@ with col1:
 
 with col2:
     st.markdown("""
-    **🎨 Plantillas**
+    **Plantillas**
     - Corporativa
     - Minimalista
     - Técnica
@@ -139,7 +139,7 @@ with col2:
 
 with col3:
     st.markdown("""
-    **⚡ Funciones**
+    **Funciones**
     - Generación automática
     - Personalización de colores
     - Múltiples idiomas

@@ -41,9 +41,9 @@ MODEL_CONFIG = {
         "max_tokens": 1800
     },
     "default": {
-        "model": _get_config_value("DEFAULT_MODEL", "gpt-4o-mini"),
-        "temperature": float(_get_config_value("DEFAULT_TEMPERATURE", "0.3")),
-        "max_tokens": int(_get_config_value("DEFAULT_MAX_TOKENS", "1500"))
+        "model": "gpt-4o-mini",
+        "temperature": 0.3,
+        "max_tokens": 1500
     }
 }
 
@@ -242,13 +242,13 @@ openai_client = OpenAIClient()
 def render_openai_config_sidebar():
     """Renderizar configuración de OpenAI en sidebar"""
     with st.sidebar:
-        st.header("🤖 Configuración AI")
+        st.header("Configuración AI")
         
         # Verificar si ya está conectado
         if hasattr(st.session_state, 'openai_connected') and st.session_state.openai_connected:
-            st.success("✅ OpenAI conectado")
+            st.success("OpenAI conectado")
             st.caption("Usando gpt-4o-mini con configuración optimizada por módulo")
-            if st.button("🔄 Reconectar"):
+            if st.button("Reconectar"):
                 del st.session_state.openai_connected
                 st.rerun()
             return True
@@ -261,7 +261,7 @@ def render_openai_config_sidebar():
             placeholder="sk-..."
         )
         
-        if st.button("🔗 Conectar AI"):
+        if st.button("Conectar AI"):
             if api_key_input:
                 success, message = openai_client.initialize_client(api_key_input)
                 if success:
@@ -273,7 +273,7 @@ def render_openai_config_sidebar():
             else:
                 st.warning("Por favor ingresa tu API key")
         
-        st.info("💡 Las funciones de AI son opcionales. Puedes usar la aplicación sin ellas.")
+        st.info("Las funciones de AI son opcionales. Puedes usar la aplicación sin ellas.")
         return False
 
 def is_openai_available():

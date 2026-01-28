@@ -132,7 +132,7 @@ with c6:
         "Funciones AI Integradas",
         "Todas las herramientas ahora incluyen funcionalidades de ChatGPT para mejorar tu productividad.",
     )
-    st.markdown("**🤖 AI disponible en:**")
+    st.markdown("**AI disponible en:**")
     st.markdown("• Generación de minutas")
     st.markdown("• Análisis de competidores") 
     st.markdown("• Insights de clientes")
