@@ -1,0 +1,14 @@
+module_name: "Template Writer"
+
+templates:
+  docx: "data/templates/plantilla_template_writer.docx"
+  pptx: "data/templates/plantilla_template_writer.pptx"
+
+ui:
+  show_detected_placeholders_debug: false
+
+openai:
+  enabled: true
+  model: "gpt-4o"
+  temperature: 0.2
+  max_output_tokens: 1200

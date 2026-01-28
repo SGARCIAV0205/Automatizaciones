@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Santander",
+    "sector": "Banca",
+    "description_hint": "Grupo financiero global con fuerte presencia en banca comercial, corporativa y digital en México.",
+    "keywords": [
+      "Santander México",
+      "Banco Santander",
+      "banca digital",
+      "crédito",
+      "servicios financieros"
+    ],
+    "country": "México"
+  },
+  {
+    "name": "Nissan",
+    "sector": "Automotriz",
+    "description_hint": "Empresa automotriz líder con operaciones de manufactura, exportación y ventas en México.",
+    "keywords": [
+      "Nissan México",
+      "industria automotriz",
+      "manufactura",
+      "exportaciones",
+      "vehículos"
+    ],
+    "country": "México"
+  },
+  {
+    "name": "Arrendadora Banorte",
+    "sector": "Arrendamiento financiero",
+    "description_hint": "Institución especializada en soluciones de arrendamiento y financiamiento para empresas en México.",
+    "keywords": [
+      "Arrendadora Banorte",
+      "Banorte arrendamiento",
+      "leasing financiero",
+      "financiamiento empresarial"
+    ],
+    "country": "México"
+  },
+  {
+    "name": "Financiera Fultra",
+    "sector": "Servicios financieros",
+    "description_hint": "Grupo financiero enfocado en financiamiento especializado para sectores productivos y empresariales.",
+    "keywords": [
+      "Financiera Fultra",
+      "Fultra financiamiento",
+      "crédito empresarial",
+      "servicios financieros México"
+    ],
+    "country": "México"
+  }
+]

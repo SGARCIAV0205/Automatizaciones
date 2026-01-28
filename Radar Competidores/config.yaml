@@ -1,0 +1,111 @@
+periodo: "2025-11"
+
+brand:
+  quantum_blue: "#152a35"
+  mint_signal: "#00f7bc"
+
+axes:
+  - name: "Integraciones"
+    weight: 1.0
+  - name: "Implementación"
+    weight: 1.0
+  - name: "IA/Automatización"
+    weight: 1.0
+  - name: "Seguridad/Compliance"
+    weight: 1.0
+  - name: "Pricing/Valor"
+    weight: 1.0
+  - name: "Soporte/SLAs"
+    weight: 1.0
+  - name: "Tracción de mercado"
+    weight: 1.0
+
+competitors:
+  - UBIMIA
+  - Moonflow
+  - Anfexi Technologies
+  - Tekprovider
+
+# ============================================================
+#  NEWS SOURCES (FUENTES DE NOTICIAS PARA SCRAPING)
+# ============================================================
+news_sources:
+
+  UBIMIA:
+    - "https://www.linkedin.com/company/ubimia/posts/"
+    - "https://mx.finanzas.yahoo.com/"
+
+  Moonflow:
+    - "https://moonflow.ai/blog/"
+    - "https://www.linkedin.com/company/moonflow/posts/"
+    - "https://www.prnewswire.com/news-releases/"
+
+  Anfexi Technologies:
+    - "https://anfexi.com/blog/"
+    - "https://www.linkedin.com/company/anfexi/posts/"
+    - "https://www.businesswire.com/portal/site/home/news/"
+
+  Tekprovider:
+    - "https://tekprovider.com/blog/"
+    - "https://www.linkedin.com/company/tekprovider/posts/"
+    - "https://techcrunch.com/"
+
+# ============================================================
+#  CLASIFICACIÓN DE NOTICIAS (TOPIC KEYWORDS)
+# ============================================================
+topic_keywords:
+  Producto:
+    - "feature"
+    - "product update"
+    - "lanzamiento"
+    - "nueva función"
+    - "actualización"
+    - "mejora"
+    - "release"
+
+  Integraciones:
+    - "integración"
+    - "integrates"
+    - "api"
+    - "connector"
+    - "crm"
+    - "erp"
+
+  Implementación:
+    - "deployment"
+    - "implementación"
+    - "go-live"
+    - "tiempo de implementación"
+    - "caso de éxito"
+
+  IA/Automatización:
+    - "ai"
+    - "machine learning"
+    - "automati"
+    - "modelo"
+    - "predictivo"
+
+  Seguridad/Compliance:
+    - "compliance"
+    - "iso"
+    - "soc"
+    - "ciberseguridad"
+    - "risk"
+    - "gdpr"
+
+  Alianzas/Expansión:
+    - "alliance"
+    - "partner"
+    - "expansión"
+    - "nueva región"
+    - "mercado nuevo"
+
+  Finanzas/Capital:
+    - "funding"
+    - "investment"
+    - "capital"
+    - "ronda"
+    - "financiación"
+
+use_llm: false
+openai_model: "gpt-4.1-mini"
