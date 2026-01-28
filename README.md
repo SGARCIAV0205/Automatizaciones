@@ -95,7 +95,7 @@ git clone https://github.com/TU_USUARIO/automatizaciones.git
 cd automatizaciones
 
 # Instalar dependencias
-pip install -r "Asistente Virtual AI Ubimia/requirements.txt"
+pip install -r requirements.txt
 
 # Configurar variables de entorno
 cp "Asistente Virtual AI Ubimia/.env.example" "Asistente Virtual AI Ubimia/.env"

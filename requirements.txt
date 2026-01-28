@@ -1,4 +1,3 @@
-# Archivo de requirements consolidado para todo el proyecto
 streamlit==1.39.0
 pandas==2.2.2
 numpy==1.26.4
