@@ -1,3 +1,4 @@
+# Archivo de requirements para Streamlit Cloud
 streamlit==1.39.0
 pandas==2.2.2
 numpy==1.26.4
@@ -16,4 +17,3 @@ srt>=3.5.3
 pypandoc>=1.13
 rapidfuzz>=3.9.6
 PyYAML==6.0.2
-pyyaml
