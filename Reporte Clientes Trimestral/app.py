@@ -44,15 +44,16 @@ def estimate_ai_cost(num_clients: int, avg_news_per_client: int = 3):
 # Main
 # ============================================================
 
-def main():
+def main(skip_page_config=False):
 
     # --------------------------------------------------------
     # Configuración básica
     # --------------------------------------------------------
-    st.set_page_config(
-        page_title="Reporte Trimestral de Clientes",
-        layout="wide"
-    )
+    if not skip_page_config:
+        st.set_page_config(
+            page_title="Reporte Trimestral de Clientes",
+            layout="wide"
+        )
     
     st.title("Reporte Trimestral de Clientes Estratégicos")
     st.markdown(

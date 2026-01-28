@@ -1,4 +1,4 @@
-# pages/5_Template_Writer.py
+# pages/4_Reuniones_1to1.py
 
 import os
 import sys
@@ -14,7 +14,7 @@ from modules.auth import authenticate_app
 # Configuración base
 # --------------------------------------------------
 st.set_page_config(
-    page_title="Template Writer",
+    page_title="Reuniones Mensuales 1to1",
     layout="wide",
 )
 
@@ -36,20 +36,20 @@ sidebar_brand()
 render_openai_config_sidebar()
 
 # --------------------------------------------------
-# Localizar módulo Template Writer
+# Localizar módulo 1to1
 # --------------------------------------------------
 AUTOM_ROOT = Path(__file__).resolve().parents[1]   # .../Automatizaciones (raíz del repo)
-template_root = AUTOM_ROOT / "Template Writer"
+one_to_one_root = AUTOM_ROOT / "1to1"
 
-if not template_root.exists():
-    st.error(f"No se encontró la carpeta 'Template Writer' en: {AUTOM_ROOT}")
+if not one_to_one_root.exists():
+    st.error(f"No se encontró la carpeta '1to1' en: {AUTOM_ROOT}")
     st.stop()
 
-core_dir = template_root / "core"
-module_path = core_dir / "ui_app.py"
+ui_dir = one_to_one_root / "ui"
+module_path = ui_dir / "app.py"
 
 if not module_path.exists():
-    st.error(f"No se encontró 'ui_app.py' en: {core_dir}")
+    st.error(f"No se encontró 'app.py' en: {ui_dir}")
     st.stop()
 
 # --------------------------------------------------
@@ -58,22 +58,24 @@ if not module_path.exists():
 original_sys_path = list(sys.path)
 
 try:
-    # Asegurar que Python encuentra todos los módulos del proyecto Template Writer
-    sys.path.insert(0, str(template_root))
-    sys.path.insert(0, str(core_dir))
+    # Asegurar que Python encuentra todos los módulos del proyecto 1to1
+    sys.path.insert(0, str(one_to_one_root))
+    sys.path.insert(0, str(ui_dir))
 
-    # Leer el contenido del archivo y modificarlo para evitar st.set_page_config
-    with open(module_path, 'r', encoding='utf-8') as f:
-        app_content = f.read()
-    
-    # Comentar la línea de st.set_page_config si existe
-    modified_content = app_content.replace(
-        'st.set_page_config(',
-        '# st.set_page_config('
-    )
-    
-    # Ejecutar el código modificado
-    exec(modified_content, globals())
+    loader = SourceFileLoader("one_to_one_external", str(module_path))
+    one_to_one_module = loader.load_module()
+
+    # Evitar segunda llamada a set_page_config dentro del módulo externo
+    try:
+        one_to_one_module.st.set_page_config = lambda *args, **kwargs: None
+    except Exception:
+        pass
+
+    # Ejecutar interfaz original
+    if hasattr(one_to_one_module, "main"):
+        one_to_one_module.main()
+    else:
+        st.error("El módulo 'app.py' de 1to1 no define la función 'main()'.")
 
 finally:
     sys.path = original_sys_path

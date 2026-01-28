@@ -64,7 +64,7 @@ def run_reporte_clientes_trimestral():
             )
             st.stop()
 
-        reporte_app.main()
+        reporte_app.main(skip_page_config=True)
 
     finally:
         sys.path = original_sys_path
