@@ -37,11 +37,11 @@ def run_reporte_clientes_trimestral():
         )
         st.stop()
 
-    modulo_root = automatizaciones_root / "REPORTE CLIENTES TRIMESTRAL"
+    modulo_root = automatizaciones_root / "Reporte Clientes Trimestral"
 
     if not modulo_root.exists():
         st.error(
-            f"No se encontró el módulo 'REPORTE CLIENTES TRIMESTRAL' en:\n"
+            f"No se encontró el módulo 'Reporte Clientes Trimestral' en:\n"
             f"{automatizaciones_root}"
         )
         st.stop()
@@ -59,7 +59,7 @@ def run_reporte_clientes_trimestral():
 
         if not hasattr(reporte_app, "main"):
             st.error(
-                "El archivo app.py del módulo 'REPORTE CLIENTES TRIMESTRAL' "
+                "El archivo app.py del módulo 'Reporte Clientes Trimestral' "
                 "no define una función main()."
             )
             st.stop()
