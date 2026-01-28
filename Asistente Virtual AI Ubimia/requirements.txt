@@ -1,4 +1,4 @@
-# Archivo de requirements para Streamlit Cloud
+# Archivo de requirements optimizado para Python 3.10
 streamlit==1.39.0
 pandas==2.2.2
 numpy==1.26.4
