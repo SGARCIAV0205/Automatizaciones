@@ -37,7 +37,7 @@ render_openai_config_sidebar()
 # --------------------------------------------------
 # Localizar módulo Generación de Minutas
 # --------------------------------------------------
-AUTOM_ROOT = Path(__file__).resolve().parents[1]   # Cambiar a parents[1] porque ahora estamos en la raíz
+AUTOM_ROOT = Path(__file__).resolve().parents[2]   # .../Automatizaciones
 minutas_root = AUTOM_ROOT / "Generación de Minutas"
 app_file = minutas_root / "app.py"
 

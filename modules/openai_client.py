@@ -9,17 +9,7 @@ from dotenv import load_dotenv
 # Cargar variables de entorno
 load_dotenv()
 
-"""
-Módulo para manejar la conexión con OpenAI API
-"""
-import os
-import streamlit as st
-from openai import OpenAI
-from dotenv import load_dotenv
-
-# Cargar variables de entorno
-load_dotenv()
-
+# Configuración específica por módulo
 def _get_config_value(key: str, default: str) -> str:
     """Obtener valor de configuración desde Streamlit secrets o variables de entorno"""
     try:
@@ -29,7 +19,6 @@ def _get_config_value(key: str, default: str) -> str:
         # Fallback a variables de entorno
         return os.getenv(key, default)
 
-# Configuración específica por módulo
 MODEL_CONFIG = {
     "minutas": {
         "model": "gpt-4o-mini",

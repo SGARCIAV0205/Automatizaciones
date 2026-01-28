@@ -37,7 +37,7 @@ render_openai_config_sidebar()
 # ---------------------------------------------------------
 # 1. Localizar proyecto externo "Radar Competidores"
 # ---------------------------------------------------------
-AUTOM_ROOT = Path(__file__).resolve().parents[1]        # Cambiar a parents[1] porque ahora estamos en la raíz
+AUTOM_ROOT = Path(__file__).resolve().parents[2]        # .../Automatizaciones
 radar_root = AUTOM_ROOT / "Radar Competidores"
 
 if not radar_root.exists():

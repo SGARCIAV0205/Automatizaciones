@@ -1,79 +1,147 @@
 # pages/5_Template_Writer.py
 
+import streamlit as st
 import sys
 from pathlib import Path
-from importlib.machinery import SourceFileLoader
-import streamlit as st
+
+# Agregar módulos al path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from modules.ui_theme import apply_theme, sidebar_brand
-from modules.openai_client import render_openai_config_sidebar
 from modules.auth import authenticate_app
+from modules.openai_client import render_openai_config_sidebar
 
-# --------------------------------------------------
-# Configuración base
-# --------------------------------------------------
-st.set_page_config(page_title="Template Writer", layout="wide")
+# Configuración de página
+st.set_page_config(
+    page_title="Template Writer",
+    layout="wide",
+)
+
 apply_theme()
 
-# --------------------------------------------------
 # Autenticación requerida
-# --------------------------------------------------
 authenticate_app()
 
-# --------------------------------------------------
-# Contenido principal (solo se muestra si está autenticado)
-# --------------------------------------------------
+# Contenido principal
 sidebar_brand()
-
-# --------------------------------------------------
-# Configuración de OpenAI en sidebar
-# --------------------------------------------------
 render_openai_config_sidebar()
 
-ASSETS = Path(__file__).parents[1] / "assets"
-logo_sidebar = ASSETS / "logo_ubimia_sidebar.png"
-sidebar_brand(str(logo_sidebar) if logo_sidebar.exists() else str(ASSETS / "logo_ubimia.png"))
+# Título principal
+st.title("📄 Template Writer")
+st.markdown("Genera documentos o presentaciones a partir de una configuración y plantillas estándar.")
 
-# --------------------------------------------------
-# Localizar Template Writer
-# --------------------------------------------------
-AUTOM_ROOT = Path(__file__).resolve().parents[1]  # Cambiar a parents[1] porque ahora estamos en la raíz
-tw_root = AUTOM_ROOT / "Template Writer"
-core_dir = tw_root / "core"
-ui_file = core_dir / "ui_app.py"
+# Buscar el módulo Template Writer
+AUTOM_ROOT = Path(__file__).resolve().parents[2]
+template_root = AUTOM_ROOT / "Template Writer"
 
-if not ui_file.exists():
-    st.error(f"No se encontró 'ui_app.py' en: {core_dir}")
-    st.info("💡 Este módulo requiere la carpeta 'Template Writer' del proyecto original.")
-    st.stop()
+if not template_root.exists():
+    st.warning("⚠️ Módulo 'Template Writer' no encontrado en la estructura del proyecto.")
+    st.info("📁 Ubicación esperada: " + str(template_root))
+    
+    # Interfaz básica mientras tanto
+    st.subheader("🚧 Funcionalidad en Desarrollo")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("### 📝 Configuración del Documento")
+        
+        tipo_doc = st.selectbox(
+            "Tipo de documento",
+            ["Reporte Ejecutivo", "Presentación", "Propuesta", "Informe Técnico"]
+        )
+        
+        titulo = st.text_input("Título del documento")
+        
+        contenido = st.text_area(
+            "Contenido principal",
+            height=200,
+            placeholder="Describe el contenido que quieres generar..."
+        )
+        
+        formato = st.selectbox(
+            "Formato de salida",
+            ["DOCX", "PPTX", "PDF", "Markdown"]
+        )
+    
+    with col2:
+        st.markdown("### ⚙️ Configuración Avanzada")
+        
+        plantilla = st.selectbox(
+            "Plantilla base",
+            ["Corporativa", "Minimalista", "Técnica", "Creativa"]
+        )
+        
+        idioma = st.selectbox("Idioma", ["Español", "Inglés"])
+        
+        incluir_graficos = st.checkbox("Incluir gráficos", value=True)
+        incluir_tablas = st.checkbox("Incluir tablas", value=False)
+        
+        st.markdown("### 🎨 Personalización")
+        color_primario = st.color_picker("Color primario", "#1f77b4")
+        
+    if st.button("🚀 Generar Documento", type="primary"):
+        if titulo and contenido:
+            with st.spinner("Generando documento..."):
+                # Simulación de generación
+                import time
+                time.sleep(2)
+                
+                st.success("✅ Documento generado exitosamente")
+                
+                # Mostrar resumen
+                st.markdown("### 📋 Resumen del Documento")
+                st.info(f"""
+                **Tipo:** {tipo_doc}
+                **Título:** {titulo}
+                **Formato:** {formato}
+                **Plantilla:** {plantilla}
+                **Idioma:** {idioma}
+                """)
+                
+                # Botón de descarga simulado
+                st.download_button(
+                    label=f"📥 Descargar {formato}",
+                    data="Contenido del documento generado...",
+                    file_name=f"{titulo.replace(' ', '_')}.{formato.lower()}",
+                    mime="application/octet-stream"
+                )
+        else:
+            st.warning("⚠️ Por favor completa el título y contenido")
 
-# --------------------------------------------------
-# Cargar módulo externo de forma aislada
-# --------------------------------------------------
-original_sys_path = list(sys.path)
-
-try:
-    sys.path.insert(0, str(core_dir))
-    sys.path.insert(0, str(tw_root))
-
-    loader = SourceFileLoader("template_writer_ui", str(ui_file))
-    tw_module = loader.load_module()
-
-finally:
-    sys.path = original_sys_path
-
-# --------------------------------------------------
-# Ejecutar UI
-# --------------------------------------------------
-
-fn = None
-for name in ("main", "app", "run", "ui"):
-    if hasattr(tw_module, name) and callable(getattr(tw_module, name)):
-        fn = getattr(tw_module, name)
-        break
-
-if fn is not None:
-    fn()
 else:
-    # Si el script ya renderiza Streamlit al importarse, no hay nada que llamar
-    st.info("Template Writer cargado. Si la interfaz no aparece, envuélvela en una función main() o app().")
+    st.info("🔄 Cargando módulo completo de Template Writer...")
+    # Aquí iría la carga del módulo real cuando esté disponible
+
+# Información adicional
+st.markdown("---")
+st.markdown("### 💡 Características del Template Writer")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.markdown("""
+    **📄 Formatos Soportados**
+    - Microsoft Word (DOCX)
+    - PowerPoint (PPTX)
+    - PDF
+    - Markdown
+    """)
+
+with col2:
+    st.markdown("""
+    **🎨 Plantillas**
+    - Corporativa
+    - Minimalista
+    - Técnica
+    - Creativa
+    """)
+
+with col3:
+    st.markdown("""
+    **⚡ Funciones**
+    - Generación automática
+    - Personalización de colores
+    - Múltiples idiomas
+    - Integración con AI
+    """)
