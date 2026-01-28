@@ -1,79 +1,43 @@
 # pages/5_Template_Writer.py
 
 import os
-import sys
-from pathlib import Path
-from importlib.machinery import SourceFileLoader
 import streamlit as st
 
 from modules.ui_theme import apply_theme, sidebar_brand
+from modules.template_writer import run_template_writer
 from modules.openai_client import render_openai_config_sidebar
 from modules.auth import authenticate_app
 
-# --------------------------------------------------
-# Configuración base
-# --------------------------------------------------
+# ---------------------------------------------------------------------
+# Configuración general de la página
+# ---------------------------------------------------------------------
 st.set_page_config(
     page_title="Template Writer",
-    layout="wide",
+    layout="wide"
 )
 
 apply_theme()
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------
 # Autenticación requerida
-# --------------------------------------------------
+# ---------------------------------------------------------------------
 authenticate_app()
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------
 # Contenido principal (solo se muestra si está autenticado)
-# --------------------------------------------------
+# ---------------------------------------------------------------------
 sidebar_brand()
 
-# --------------------------------------------------
+# ---------------------------------------------------------------------
 # Configuración de OpenAI en sidebar
-# --------------------------------------------------
+# ---------------------------------------------------------------------
 render_openai_config_sidebar()
 
-# --------------------------------------------------
-# Localizar módulo Template Writer
-# --------------------------------------------------
-AUTOM_ROOT = Path(__file__).resolve().parents[1]   # .../Automatizaciones (raíz del repo)
-template_root = AUTOM_ROOT / "Template Writer"
+# ---------------------------------------------------------------------
+# Ejecutar módulo
+# ---------------------------------------------------------------------
 
-if not template_root.exists():
-    st.error(f"No se encontró la carpeta 'Template Writer' en: {AUTOM_ROOT}")
-    st.stop()
+# Demo mode por defecto (si aplica)
+os.environ.setdefault("UBIMIA_DEMO_MODE", "1")
 
-core_dir = template_root / "core"
-module_path = core_dir / "ui_app.py"
-
-if not module_path.exists():
-    st.error(f"No se encontró 'ui_app.py' en: {core_dir}")
-    st.stop()
-
-# --------------------------------------------------
-# Cargar módulo de forma aislada
-# --------------------------------------------------
-original_sys_path = list(sys.path)
-
-try:
-    # Asegurar que Python encuentra todos los módulos del proyecto Template Writer
-    sys.path.insert(0, str(template_root))
-    sys.path.insert(0, str(core_dir))
-
-    # Leer el contenido del archivo y modificarlo para evitar st.set_page_config
-    with open(module_path, 'r', encoding='utf-8') as f:
-        app_content = f.read()
-    
-    # Comentar la línea de st.set_page_config si existe
-    modified_content = app_content.replace(
-        'st.set_page_config(',
-        '# st.set_page_config('
-    )
-    
-    # Ejecutar el código modificado
-    exec(modified_content, globals())
-
-finally:
-    sys.path = original_sys_path
+run_template_writer()

@@ -88,13 +88,14 @@ def is_long_field(ph: str) -> bool:
 # -----------------------------
 # App
 # -----------------------------
-def app() -> None:
+def app(skip_page_config=False) -> None:
     cfg = load_cfg()
 
-    st.set_page_config(
-        page_title=cfg.get("module_name", "Template Writer"),
-        layout="wide",
-    )
+    if not skip_page_config:
+        st.set_page_config(
+            page_title=cfg.get("module_name", "Template Writer"),
+            layout="wide",
+        )
 
     # -----------------------------
     # Header / Descripción
