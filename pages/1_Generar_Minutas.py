@@ -41,17 +41,8 @@ AUTOM_ROOT = Path(__file__).resolve().parents[1]   # .../Automatizaciones (raíz
 minutas_root = AUTOM_ROOT / "Generación de Minutas"
 app_file = minutas_root / "app.py"
 
-st.write(f"DEBUG - Buscando en: {minutas_root}")
-st.write(f"DEBUG - Archivo existe: {app_file.exists()}")
-
 if not app_file.exists():
     st.error(f"No se encontró 'app.py' en: {minutas_root}")
-    st.write(f"DEBUG - Contenido de {AUTOM_ROOT}:")
-    try:
-        for item in AUTOM_ROOT.iterdir():
-            st.write(f"  - {item.name}")
-    except Exception as e:
-        st.write(f"Error listando directorio: {e}")
     st.stop()
 
 # --------------------------------------------------
@@ -63,22 +54,18 @@ try:
     # Permite imports como: import llm, render, utils, etc.
     sys.path.insert(0, str(minutas_root))
 
-    loader = SourceFileLoader("generacion_minutas_ui", str(app_file))
-    minutas_module = loader.load_module()
+    # Leer el contenido del archivo y modificarlo para evitar st.set_page_config
+    with open(app_file, 'r', encoding='utf-8') as f:
+        app_content = f.read()
+    
+    # Comentar la línea de st.set_page_config
+    modified_content = app_content.replace(
+        'st.set_page_config(',
+        '# st.set_page_config('
+    )
+    
+    # Ejecutar el código modificado
+    exec(modified_content, globals())
 
 finally:
     sys.path = original_sys_path
-
-# --------------------------------------------------
-# Ejecutar UI
-# --------------------------------------------------
-# Caso 1: existe main()
-if hasattr(minutas_module, "main") and callable(minutas_module.main):
-    minutas_module.main()
-
-# Caso 2: app.py ya ejecuta Streamlit al importarse
-else:
-    st.info(
-        "Generación de Minutas cargada. "
-        "Si no ves la interfaz, encapsula el código en una función main()."
-    )
