@@ -86,12 +86,12 @@ def generate_minutes(
 def render_ai_enhancement_section():
     """Renderizar sección de mejora con AI para minutas"""
     try:
-        from .openai_client import openai_client, is_openai_available
+        from modules.openai_client import openai_client, is_openai_available
         
         if not is_openai_available():
             return None, None
         
-        st.subheader("🤖 Mejora con AI")
+        st.subheader("Mejora con AI")
         st.info("Usa ChatGPT para generar automáticamente objetivos, resumen y tareas desde una transcripción.")
         
         # Input de transcripción
@@ -109,7 +109,7 @@ def render_ai_enhancement_section():
             help="Información adicional que ayude al AI a entender mejor el contexto"
         )
         
-        if st.button("✨ Generar con AI", type="primary"):
+        if st.button("Generar con AI", type="primary"):
             if not transcription.strip():
                 st.warning("Por favor ingresa una transcripción")
                 return None, None
@@ -121,7 +121,7 @@ def render_ai_enhancement_section():
                     st.error(f"Error al procesar con AI: {error}")
                     return None, None
                 else:
-                    st.success("✅ Contenido generado con AI")
+                    st.success("Contenido generado con AI")
                     return enhanced_content, transcription
         
         return None, None
