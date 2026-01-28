@@ -1,4 +1,4 @@
-# pages/4_1to1.py
+# pages/4_Reuniones_1to1.py
 
 import os
 import sys
@@ -7,6 +7,8 @@ from importlib.machinery import SourceFileLoader
 
 import streamlit as st
 from modules.ui_theme import apply_theme, sidebar_brand
+from modules.openai_client import render_openai_config_sidebar
+from modules.auth import authenticate_app
 
 # ---------------------------------------------------------
 # Configuración inicial de la página principal
@@ -14,18 +16,32 @@ from modules.ui_theme import apply_theme, sidebar_brand
 st.set_page_config(page_title="Reuniones Mensuales 1to1", layout="wide")
 apply_theme()
 
+# ---------------------------------------------------------
+# Autenticación requerida
+# ---------------------------------------------------------
+authenticate_app()
+
+# ---------------------------------------------------------
+# Contenido principal (solo se muestra si está autenticado)
+# ---------------------------------------------------------
 ASSETS = Path(__file__).parents[1] / "assets"
 logo_sidebar = ASSETS / "logo_ubimia_sidebar.png"
 sidebar_brand(str(logo_sidebar) if logo_sidebar.exists() else str(ASSETS / "logo_ubimia.png"))
 
 # ---------------------------------------------------------
+# Configuración de OpenAI en sidebar
+# ---------------------------------------------------------
+render_openai_config_sidebar()
+
+# ---------------------------------------------------------
 # 1. Localizar proyecto externo "1to1"
 # ---------------------------------------------------------
-AUTOM_ROOT = Path(__file__).resolve().parents[2]      # .../Automatizaciones
+AUTOM_ROOT = Path(__file__).resolve().parents[1]      # Cambiar a parents[1] porque ahora estamos en la raíz
 one_to_one_root = AUTOM_ROOT / "1to1"
 
 if not one_to_one_root.exists():
     st.error(f"No se encontró la carpeta '1to1' en: {AUTOM_ROOT}")
+    st.info("💡 Este módulo requiere la carpeta '1to1' del proyecto original.")
     st.stop()
 
 ui_dir = one_to_one_root / "ui"
