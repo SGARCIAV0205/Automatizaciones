@@ -10,6 +10,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configuración específica por módulo
+def _get_config_value(key: str, default: str) -> str:
+    """Obtener valor de configuración desde Streamlit secrets o variables de entorno"""
+    try:
+        # Intentar primero desde Streamlit secrets
+        return st.secrets.get(key, default)
+    except (AttributeError, FileNotFoundError):
+        # Fallback a variables de entorno
+        return os.getenv(key, default)
+
 MODEL_CONFIG = {
     "minutas": {
         "model": "gpt-4o-mini",
@@ -32,9 +41,9 @@ MODEL_CONFIG = {
         "max_tokens": 1800
     },
     "default": {
-        "model": _get_config_value("DEFAULT_MODEL", "gpt-4o-mini"),
-        "temperature": float(_get_config_value("DEFAULT_TEMPERATURE", "0.3")),
-        "max_tokens": int(_get_config_value("DEFAULT_MAX_TOKENS", "1500"))
+        "model": "gpt-4o-mini",
+        "temperature": 0.3,
+        "max_tokens": 1500
     }
 }
 
