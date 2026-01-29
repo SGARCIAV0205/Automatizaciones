@@ -35,6 +35,19 @@ sidebar_brand()
 # ---------------------------------------------------
 # Hero
 # ---------------------------------------------------
+# Agregar saludo personalizado
+st.markdown("""
+<div style="text-align: center; margin: 2rem 0 1rem 0;">
+    <h2 style="
+        font-family: 'Space Grotesk', Arial, sans-serif !important;
+        font-weight: 700 !important;
+        color: var(--ub-white) !important;
+        font-size: 2.8rem !important;
+        margin: 0 !important;
+    ">¡Hola Diego!</h2>
+</div>
+""", unsafe_allow_html=True)
+
 centered_logo_and_titles(
     title_top="¿En qué te puedo asistir hoy?",
     subtitle=(
