@@ -43,13 +43,12 @@ st.markdown("""
         font-weight: 700 !important;
         color: var(--ub-white) !important;
         font-size: 2.8rem !important;
-        margin: 0 !important;
-    ">¡Hola Diego!</h2>
+        margin: 0 !important
 </div>
 """, unsafe_allow_html=True)
 
 centered_logo_and_titles(
-    title_top="¿En qué te puedo asistir hoy?",
+    title_top="Hola Diego, ¿En qué te puedo asistir hoy?",
     subtitle=(
         "Centraliza tus automatizaciones: genera minutas, crea el reporte trimestral de clientes, "
         "monitorea competidores y gestiona reuniones 1:1, sin código."
