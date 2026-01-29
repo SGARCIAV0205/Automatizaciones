@@ -23,7 +23,7 @@ apply_theme()
 # --------------------------------------------------
 # Autenticación requerida
 # --------------------------------------------------
-authenticate_app(show_session_info=False)
+authenticate_app()
 
 # --------------------------------------------------
 # Contenido principal (solo se muestra si está autenticado)
