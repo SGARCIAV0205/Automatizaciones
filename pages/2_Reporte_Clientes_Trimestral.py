@@ -1,7 +1,12 @@
 # pages/2_Reporte_Clientes_Trimestral.py
 
 import os
+import sys
+from pathlib import Path
 import streamlit as st
+
+# Agregar el directorio raíz al path para imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from modules.ui_theme import apply_theme, sidebar_brand
 from modules.reporte_clientes_trimestral import run_reporte_clientes_trimestral

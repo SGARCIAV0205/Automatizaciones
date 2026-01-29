@@ -5,6 +5,9 @@ from pathlib import Path
 from importlib.machinery import SourceFileLoader
 import streamlit as st
 
+# Agregar el directorio raíz al path para imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from modules.ui_theme import apply_theme, sidebar_brand
 from modules.openai_client import render_openai_config_sidebar
 from modules.auth import authenticate_app, render_session_footer

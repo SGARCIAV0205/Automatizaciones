@@ -1,7 +1,12 @@
 # pages/3_Radar_Competidores.py
 
 import os
+import sys
+from pathlib import Path
 import streamlit as st
+
+# Agregar el directorio raíz al path para imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from modules.ui_theme import apply_theme, sidebar_brand
 from modules.radar_competidores import run_radar_competidores
