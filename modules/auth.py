@@ -119,59 +119,33 @@ def render_auth_sidebar():
     """Renderizar información de autenticación en sidebar al final"""
     if check_authentication():
         with st.sidebar:
-            # CSS para posicionar la información de sesión al fondo
-            st.markdown("""
-            <style>
-            .session-info-bottom {
-                position: fixed;
-                bottom: 20px;
-                left: 20px;
-                right: 20px;
-                width: calc(100% - 40px);
-                max-width: 280px;
-                z-index: 999;
-            }
+            # Espaciador grande para empujar hacia abajo
+            st.markdown('<div style="height: 8rem;"></div>', unsafe_allow_html=True)
             
-            /* Asegurar que esté dentro del sidebar */
-            .css-1d391kg .session-info-bottom {
-                position: absolute;
-                bottom: 20px;
-                left: 20px;
-                right: 20px;
-                width: calc(100% - 40px);
-            }
-            </style>
-            """, unsafe_allow_html=True)
-            
-            # Información de sesión con posicionamiento fijo al fondo
+            # Información de sesión con estilo personalizado
             st.markdown(f"""
-            <div class="session-info-bottom">
+            <div style="
+                background: var(--ub-navy-2);
+                border: 1px solid rgba(46,230,166,0.3);
+                border-radius: 12px;
+                padding: 1rem;
+                margin-top: 1rem;
+                text-align: center;
+            ">
                 <div style="
-                    background: var(--ub-navy-2);
-                    border: 1px solid rgba(46,230,166,0.3);
-                    border-radius: 12px;
-                    padding: 1rem;
-                    text-align: center;
+                    color: var(--ub-mint);
+                    font-size: 14px;
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                ">SESIÓN ACTIVA</div>
+                <div style="
+                    color: var(--ub-white);
+                    font-size: 16px;
+                    font-weight: 700;
                     margin-bottom: 1rem;
-                ">
-                    <div style="
-                        color: var(--ub-mint);
-                        font-size: 14px;
-                        font-weight: 600;
-                        margin-bottom: 0.5rem;
-                    ">SESIÓN ACTIVA</div>
-                    <div style="
-                        color: var(--ub-white);
-                        font-size: 16px;
-                        font-weight: 700;
-                        margin-bottom: 0;
-                    ">{st.session_state.get('username', 'Usuario')}</div>
-                </div>
+                ">{st.session_state.get('username', 'Usuario')}</div>
             </div>
             """, unsafe_allow_html=True)
-            
-            # Espaciador para el botón de cerrar sesión (fuera del contenedor fijo)
-            st.markdown('<div style="height: 120px;"></div>', unsafe_allow_html=True)
             
             # Botón de cerrar sesión
             if st.button("Cerrar Sesión", type="secondary", use_container_width=True):
