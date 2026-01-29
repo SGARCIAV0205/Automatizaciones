@@ -35,20 +35,8 @@ sidebar_brand()
 # ---------------------------------------------------
 # Hero
 # ---------------------------------------------------
-# Agregar saludo personalizado
-st.markdown("""
-<div style="text-align: center; margin: 2rem 0 1rem 0;">
-    <h2 style="
-        font-family: 'Space Grotesk', Arial, sans-serif !important;
-        font-weight: 700 !important;
-        color: var(--ub-white) !important;
-        font-size: 2.8rem !important;
-        margin: 0 !important
-</div>
-""", unsafe_allow_html=True)
-
 centered_logo_and_titles(
-    title_top="Hola Diego, ¿En qué te puedo asistir hoy?",
+    title_top="¿En qué te puedo asistir hoy?",
     subtitle=(
         "Centraliza tus automatizaciones: genera minutas, crea el reporte trimestral de clientes, "
         "monitorea competidores y gestiona reuniones 1:1, sin código."
@@ -135,3 +123,20 @@ with c5:
     st.page_link("pages/5_Template_Writer.py", label="Ir al módulo →")
     card_close()
 
+# ---------------------------------------------------
+# Tarjeta 6 – Próximamente
+# ---------------------------------------------------
+with c6:
+    card_open(
+        "AI POWERED",
+        "Funciones AI Integradas",
+        "Todas las herramientas ahora incluyen funcionalidades de ChatGPT para mejorar tu productividad.",
+    )
+    st.markdown("**AI disponible en:**")
+    st.markdown("• Generación de minutas")
+    st.markdown("• Análisis de competidores") 
+    st.markdown("• Insights de clientes")
+    st.markdown("• Preparación de 1:1s")
+    card_close()
+
+st.markdown("<div class='ub-space-lg'></div>", unsafe_allow_html=True)

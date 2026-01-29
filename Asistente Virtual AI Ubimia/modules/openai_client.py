@@ -9,15 +9,6 @@ from dotenv import load_dotenv
 # Cargar variables de entorno
 load_dotenv()
 
-def _get_config_value(key: str, default: str) -> str:
-    """Obtener valor de configuración desde Streamlit secrets o variables de entorno"""
-    try:
-        # Intentar primero desde Streamlit secrets
-        return st.secrets.get(key, default)
-    except (AttributeError, FileNotFoundError):
-        # Fallback a variables de entorno
-        return os.getenv(key, default)
-
 # Configuración específica por módulo
 MODEL_CONFIG = {
     "minutas": {
@@ -46,6 +37,15 @@ MODEL_CONFIG = {
         "max_tokens": int(_get_config_value("DEFAULT_MAX_TOKENS", "1500"))
     }
 }
+
+def _get_config_value(key: str, default: str) -> str:
+    """Obtener valor de configuración desde Streamlit secrets o variables de entorno"""
+    try:
+        # Intentar primero desde Streamlit secrets
+        return st.secrets.get(key, default)
+    except (AttributeError, FileNotFoundError):
+        # Fallback a variables de entorno
+        return os.getenv(key, default)
 
 class OpenAIClient:
     def __init__(self):
