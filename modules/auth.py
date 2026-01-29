@@ -129,10 +129,11 @@ def require_auth(func):
     return wrapper
 
 # Función principal de autenticación
-def authenticate_app():
+def authenticate_app(show_session_info=True):
     """Función principal para manejar autenticación de la app"""
     if not check_authentication():
         login_form()
         st.stop()
     else:
-        render_auth_sidebar()
+        if show_session_info:
+            render_auth_sidebar()
