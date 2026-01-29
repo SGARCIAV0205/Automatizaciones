@@ -119,37 +119,64 @@ def render_auth_sidebar():
     """Renderizar información de autenticación en sidebar al final"""
     if check_authentication():
         with st.sidebar:
-            # Espaciador para separar de la configuración AI
-            st.markdown('<div style="height: 1rem;"></div>', unsafe_allow_html=True)
-            
-            # Información de sesión con estilo personalizado
+            # CSS para posicionar la información de sesión al final del sidebar
             st.markdown("""
-            <div style="
-                background: var(--ub-navy-2);
-                border: 1px solid rgba(46,230,166,0.3);
-                border-radius: 12px;
-                padding: 1rem;
-                margin-top: 1rem;
-                text-align: center;
-            ">
+            <style>
+            /* Contenedor para la información de sesión al final */
+            .session-info-bottom {
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                width: calc(100% - 40px);
+                max-width: 280px;
+                z-index: 999;
+            }
+            
+            /* Ajustar para el ancho del sidebar */
+            @media (min-width: 768px) {
+                .session-info-bottom {
+                    left: 20px;
+                    width: calc(21rem - 40px);
+                }
+            }
+            </style>
+            
+            <div class="session-info-bottom">
                 <div style="
-                    color: var(--ub-mint);
-                    font-size: 14px;
-                    font-weight: 600;
-                    margin-bottom: 0.5rem;
-                ">SESIÓN ACTIVA</div>
-                <div style="
-                    color: var(--ub-white);
-                    font-size: 16px;
-                    font-weight: 700;
+                    background: var(--ub-navy-2);
+                    border: 1px solid rgba(46,230,166,0.3);
+                    border-radius: 12px;
+                    padding: 1rem;
+                    text-align: center;
                     margin-bottom: 1rem;
-                ">""" + st.session_state.get('username', 'Usuario') + """</div>
+                ">
+                    <div style="
+                        color: var(--ub-mint);
+                        font-size: 14px;
+                        font-weight: 600;
+                        margin-bottom: 0.5rem;
+                    ">SESIÓN ACTIVA</div>
+                    <div style="
+                        color: var(--ub-white);
+                        font-size: 16px;
+                        font-weight: 700;
+                        margin-bottom: 1rem;
+                    ">""" + st.session_state.get('username', 'Usuario') + """</div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
             
+            # Crear un contenedor invisible para el botón que también esté al final
+            st.markdown("""
+            <div style="position: fixed; bottom: 80px; left: 20px; width: calc(21rem - 40px); z-index: 999;">
+            """, unsafe_allow_html=True)
+            
             # Botón de cerrar sesión
-            if st.button("Cerrar Sesión", type="secondary", use_container_width=True):
+            if st.button("Cerrar Sesión", type="secondary", use_container_width=True, key="logout_bottom"):
                 logout()
+                
+            st.markdown("</div>", unsafe_allow_html=True)
 
 def require_auth(func):
     """Decorador para requerir autenticación"""
