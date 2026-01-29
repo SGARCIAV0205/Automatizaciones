@@ -46,11 +46,12 @@ def check_authentication():
     return st.session_state.get("authenticated", False)
 
 def login_form():
-    """Mostrar formulario de login"""
+    """Mostrar formulario de login personalizado"""
     st.markdown("""
-    <div style='text-align: center; padding: 2rem;'>
-        <h1>🔐 Acceso al Asistente Virtual AI</h1>
-        <p style='color: #666; margin-bottom: 2rem;'>Ingresa tus credenciales para continuar</p>
+    <div style='text-align: center; padding: 1rem 0 2rem 0;'>
+        <div class="ub-badge" style="margin-bottom: 1.5rem;">ASISTENTE VIRTUAL AI</div>
+        <h1 style='color: var(--ub-white); font-weight: 700; margin-bottom: 0.5rem;'>Acceso Autorizado</h1>
+        <p style='color: var(--ub-gray); margin-bottom: 2rem; font-size: 16px;'>Ingresa tus credenciales para continuar</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -58,39 +59,45 @@ def login_form():
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        with st.container():
-            st.markdown("### Iniciar Sesión")
+        # Crear una tarjeta personalizada para el login
+        st.markdown("""
+        <div class="ub-card" style="margin-bottom: 2rem;">
+        """, unsafe_allow_html=True)
+        
+        st.markdown("### Iniciar Sesión")
+        
+        # Formulario de login
+        with st.form("login_form"):
+            username = st.text_input(
+                "Usuario",
+                placeholder="Ingresa tu usuario",
+                help="Usuario configurado para acceder al sistema"
+            )
             
-            # Formulario de login
-            with st.form("login_form"):
-                username = st.text_input(
-                    "Usuario",
-                    placeholder="Ingresa tu usuario",
-                    help="Usuario configurado para acceder al sistema"
-                )
-                
-                password = st.text_input(
-                    "Contraseña",
-                    type="password",
-                    placeholder="Ingresa tu contraseña",
-                    help="Contraseña configurada para acceder al sistema"
-                )
-                
-                submit_button = st.form_submit_button(
-                    "🚀 Ingresar",
-                    type="primary",
-                    use_container_width=True
-                )
-                
-                if submit_button:
-                    if authenticate_user(username, password):
-                        st.session_state.authenticated = True
-                        st.session_state.username = username
-                        st.success("✅ Acceso autorizado. Redirigiendo...")
-                        st.rerun()
-                    else:
-                        st.error("❌ Usuario o contraseña incorrectos")
-                        st.info("💡 Verifica tus credenciales e intenta nuevamente")
+            password = st.text_input(
+                "Contraseña",
+                type="password",
+                placeholder="Ingresa tu contraseña",
+                help="Contraseña configurada para acceder al sistema"
+            )
+            
+            submit_button = st.form_submit_button(
+                "Ingresar",
+                type="primary",
+                use_container_width=True
+            )
+            
+            if submit_button:
+                if authenticate_user(username, password):
+                    st.session_state.authenticated = True
+                    st.session_state.username = username
+                    st.success("Acceso autorizado. Redirigiendo...")
+                    st.rerun()
+                else:
+                    st.error("Usuario o contraseña incorrectos")
+                    st.info("Verifica tus credenciales e intenta nuevamente")
+        
+        st.markdown("</div>", unsafe_allow_html=True)
 
 def authenticate_user(username: str, password: str) -> bool:
     """Autenticar usuario"""
@@ -109,14 +116,39 @@ def logout():
     st.rerun()
 
 def render_auth_sidebar():
-    """Renderizar información de autenticación en sidebar"""
+    """Renderizar información de autenticación en sidebar al final"""
     if check_authentication():
         with st.sidebar:
-            st.markdown("---")
-            st.markdown("### 👤 Sesión Activa")
-            st.success(f"Conectado como: **{st.session_state.get('username', 'Usuario')}**")
+            # Espaciador para empujar el contenido hacia abajo
+            st.markdown('<div style="height: 2rem;"></div>', unsafe_allow_html=True)
             
-            if st.button("🚪 Cerrar Sesión", type="secondary"):
+            # Información de sesión con estilo personalizado
+            st.markdown("""
+            <div style="
+                background: var(--ub-navy-2);
+                border: 1px solid rgba(46,230,166,0.3);
+                border-radius: 12px;
+                padding: 1rem;
+                margin-top: 1rem;
+                text-align: center;
+            ">
+                <div style="
+                    color: var(--ub-mint);
+                    font-size: 14px;
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                ">SESIÓN ACTIVA</div>
+                <div style="
+                    color: var(--ub-white);
+                    font-size: 16px;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">""" + st.session_state.get('username', 'Usuario') + """</div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Botón de cerrar sesión
+            if st.button("Cerrar Sesión", type="secondary", use_container_width=True):
                 logout()
 
 def require_auth(func):
@@ -136,3 +168,40 @@ def authenticate_app():
         st.stop()
     else:
         render_auth_sidebar()
+
+def render_session_footer():
+    """Renderizar información de sesión al final de cada módulo"""
+    if check_authentication():
+        st.markdown('<div style="height: 3rem;"></div>', unsafe_allow_html=True)
+        st.markdown("---")
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.markdown("""
+            <div style="
+                background: var(--ub-navy-2);
+                border: 1px solid rgba(46,230,166,0.2);
+                border-radius: 12px;
+                padding: 1.5rem;
+                text-align: center;
+                margin: 1rem 0;
+            ">
+                <div style="
+                    color: var(--ub-mint);
+                    font-size: 12px;
+                    font-weight: 800;
+                    letter-spacing: 1px;
+                    margin-bottom: 0.5rem;
+                ">SESIÓN ACTIVA</div>
+                <div style="
+                    color: var(--ub-white);
+                    font-size: 18px;
+                    font-weight: 700;
+                    margin-bottom: 1rem;
+                ">Conectado como: """ + st.session_state.get('username', 'Usuario') + """</div>
+                <div style="
+                    color: var(--ub-gray);
+                    font-size: 14px;
+                ">Asistente Virtual AI - Ubimia</div>
+            </div>
+            """, unsafe_allow_html=True)

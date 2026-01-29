@@ -6,7 +6,7 @@ import streamlit as st
 from modules.ui_theme import apply_theme, sidebar_brand
 from modules.template_writer import run_template_writer
 from modules.openai_client import render_openai_config_sidebar
-from modules.auth import authenticate_app
+from modules.auth import authenticate_app, render_session_footer
 
 # ---------------------------------------------------------------------
 # Configuración general de la página
@@ -41,3 +41,8 @@ render_openai_config_sidebar()
 os.environ.setdefault("UBIMIA_DEMO_MODE", "1")
 
 run_template_writer()
+
+# ---------------------------------------------------------------------
+# Footer de sesión
+# ---------------------------------------------------------------------
+render_session_footer()

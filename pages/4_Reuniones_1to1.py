@@ -8,7 +8,7 @@ import streamlit as st
 
 from modules.ui_theme import apply_theme, sidebar_brand
 from modules.openai_client import render_openai_config_sidebar
-from modules.auth import authenticate_app
+from modules.auth import authenticate_app, render_session_footer
 
 # --------------------------------------------------
 # Configuración base
@@ -79,3 +79,8 @@ try:
 
 finally:
     sys.path = original_sys_path
+
+# --------------------------------------------------
+# Footer de sesión
+# --------------------------------------------------
+render_session_footer()
