@@ -119,11 +119,11 @@ def render_auth_sidebar():
     """Renderizar información de autenticación en sidebar al final"""
     if check_authentication():
         with st.sidebar:
-            # Espaciador grande para empujar hacia abajo
-            st.markdown('<div style="height: 8rem;"></div>', unsafe_allow_html=True)
+            # Espaciador para separar de la configuración AI
+            st.markdown('<div style="height: 1rem;"></div>', unsafe_allow_html=True)
             
             # Información de sesión con estilo personalizado
-            st.markdown(f"""
+            st.markdown("""
             <div style="
                 background: var(--ub-navy-2);
                 border: 1px solid rgba(46,230,166,0.3);
@@ -143,7 +143,7 @@ def render_auth_sidebar():
                     font-size: 16px;
                     font-weight: 700;
                     margin-bottom: 1rem;
-                ">{st.session_state.get('username', 'Usuario')}</div>
+                ">""" + st.session_state.get('username', 'Usuario') + """</div>
             </div>
             """, unsafe_allow_html=True)
             
