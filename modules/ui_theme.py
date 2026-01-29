@@ -8,23 +8,6 @@ ASSETS = Path(__file__).resolve().parents[1] / "assets"
 def apply_theme():
     st.markdown("""
     <style>
-    /* ===== FORZAR DARK MODE PERMANENTE ===== */
-    /* Ocultar el botón de cambio de tema */
-    [data-testid="stToolbar"] {
-        display: none !important;
-    }
-    
-    /* Forzar colores dark mode */
-    .stApp {
-        background-color: #0B1220 !important;
-        color: #FFFFFF !important;
-    }
-    
-    /* Forzar sidebar dark */
-    .css-1d391kg {
-        background-color: #121A2B !important;
-    }
-    
     /* ===== Tipografía global (Space Grotesk -> Arial -> sans) ===== */
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&display=swap');
 

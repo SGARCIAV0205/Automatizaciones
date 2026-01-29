@@ -12,11 +12,7 @@ port = 8501
 gatherUsageStats = false
 
 [theme]
-base = "dark"
-primaryColor = "#2EE6A6"
-backgroundColor = "#0B1220"
-secondaryBackgroundColor = "#121A2B"
-textColor = "#FFFFFF"
+base = "light"
 
 [runner]
 magicEnabled = true
