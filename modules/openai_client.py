@@ -244,36 +244,57 @@ def render_openai_config_sidebar():
     with st.sidebar:
         st.header("Configuración AI")
         
+        # Verificar si hay API key en secrets/env
+        has_system_api_key = False
+        try:
+            system_key = st.secrets.get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY")
+            has_system_api_key = bool(system_key)
+        except (AttributeError, FileNotFoundError):
+            pass
+        
+        # Si hay API key del sistema, inicializar automáticamente
+        if has_system_api_key and not hasattr(st.session_state, 'openai_connected'):
+            success, message = openai_client.initialize_client()
+            if success:
+                st.session_state.openai_connected = True
+        
         # Verificar si ya está conectado
         if hasattr(st.session_state, 'openai_connected') and st.session_state.openai_connected:
             st.success("OpenAI conectado")
             st.caption("Usando gpt-4o-mini con configuración optimizada por módulo")
-            if st.button("Reconectar"):
+            
+            # Solo mostrar opción de reconectar si no hay API key del sistema
+            if not has_system_api_key and st.button("Reconectar"):
                 del st.session_state.openai_connected
                 st.rerun()
             return True
         
-        # Input para API Key
-        api_key_input = st.text_input(
-            "OpenAI API Key",
-            type="password",
-            help="Ingresa tu API key de OpenAI para habilitar funciones de AI",
-            placeholder="sk-..."
-        )
-        
-        if st.button("Conectar AI"):
-            if api_key_input:
-                success, message = openai_client.initialize_client(api_key_input)
-                if success:
-                    st.success(message)
-                    st.session_state.openai_connected = True
-                    st.rerun()
+        # Solo mostrar configuración manual si no hay API key del sistema
+        if not has_system_api_key:
+            # Input para API Key
+            api_key_input = st.text_input(
+                "OpenAI API Key",
+                type="password",
+                help="Ingresa tu API key de OpenAI para habilitar funciones de AI",
+                placeholder="sk-..."
+            )
+            
+            if st.button("Conectar AI"):
+                if api_key_input:
+                    success, message = openai_client.initialize_client(api_key_input)
+                    if success:
+                        st.success(message)
+                        st.session_state.openai_connected = True
+                        st.rerun()
+                    else:
+                        st.error(message)
                 else:
-                    st.error(message)
-            else:
-                st.warning("Por favor ingresa tu API key")
+                    st.warning("Por favor ingresa tu API key")
+            
+            st.info("Las funciones de AI son opcionales. Puedes usar la aplicación sin ellas.")
+        else:
+            st.info("API key configurada automáticamente desde la configuración del sistema.")
         
-        st.info("Las funciones de AI son opcionales. Puedes usar la aplicación sin ellas.")
         return False
 
 def is_openai_available():
