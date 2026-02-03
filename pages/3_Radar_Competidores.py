@@ -17,21 +17,28 @@ try:
     from modules.auth import authenticate_app, render_session_footer
     from modules.db_adapters import apply_database_patches
 except ImportError as e:
-    # Fallback: cargar auth directamente desde archivo
-    auth_file = root_dir / "modules" / "auth.py"
-    if auth_file.exists():
-        with open(auth_file, 'r', encoding='utf-8') as f:
-            exec(f.read(), globals())
+    # Fallback: cargar módulos directamente desde archivos
+    modules_to_load = ['auth.py', 'db_adapters.py']
+    
+    for module_file in modules_to_load:
+        module_path = root_dir / "modules" / module_file
+        if module_path.exists():
+            with open(module_path, 'r', encoding='utf-8') as f:
+                exec(f.read(), globals())
     
     # Intentar importar otros módulos
     try:
         from modules.ui_theme import apply_theme, sidebar_brand
         from modules.radar_competidores import run_radar_competidores
         from modules.openai_client import render_openai_config_sidebar
-        from modules.db_adapters import apply_database_patches
     except ImportError as e2:
         st.error(f"Error importando módulos: {e2}")
         st.stop()
+    
+    # Definir apply_database_patches si no existe
+    if 'apply_database_patches' not in globals():
+        def apply_database_patches():
+            pass  # Función vacía como fallback
 
 # ---------------------------------------------------------------------
 # Configuración general de la página

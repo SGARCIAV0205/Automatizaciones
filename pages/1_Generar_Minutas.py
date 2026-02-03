@@ -15,22 +15,21 @@ try:
     from modules.openai_client import render_openai_config_sidebar
     from modules.auth import authenticate_app, render_session_footer
 except ImportError as e:
-    # Fallback: cargar auth directamente desde archivo
-    auth_file = root_dir / "modules" / "auth.py"
-    if auth_file.exists():
-        # Ejecutar el archivo auth.py en el namespace global
-        with open(auth_file, 'r', encoding='utf-8') as f:
-            exec(f.read(), globals())
-    else:
-        st.error(f"No se pudo cargar el módulo de autenticación: {e}")
-        st.stop()
+    # Fallback: cargar módulos directamente desde archivos
+    modules_to_load = ['auth.py']
+    
+    for module_file in modules_to_load:
+        module_path = root_dir / "modules" / module_file
+        if module_path.exists():
+            with open(module_path, 'r', encoding='utf-8') as f:
+                exec(f.read(), globals())
     
     # Intentar importar otros módulos
     try:
         from modules.ui_theme import apply_theme, sidebar_brand
         from modules.openai_client import render_openai_config_sidebar
     except ImportError as e2:
-        st.error(f"Error importando otros módulos: {e2}")
+        st.error(f"Error importando módulos: {e2}")
         st.stop()
 
 # --------------------------------------------------
