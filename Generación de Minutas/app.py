@@ -8,12 +8,17 @@ import streamlit as st
 from dotenv import load_dotenv
 
 # Módulos locales del proyecto
-from ingest import load_transcript
-from split import chunk_text
-from summarize import map_blocks, reduce_summaries, consistency_check
-from render import render_markdown, save_outputs
-from utils import load_participants_csv, base_payload
-from llm import count_tokens, estimate_cost
+try:
+    from ingest import load_transcript
+    from split import chunk_text
+    from summarize import map_blocks, reduce_summaries, consistency_check
+    from render import render_markdown, save_outputs
+    from utils import load_participants_csv, base_payload
+    from llm import count_tokens, estimate_cost
+except ImportError as e:
+    st.error(f"Error importando módulos locales: {e}")
+    st.info("Verifica que todos los archivos del módulo estén presentes.")
+    st.stop()
 
 # ---------------------------------------------------------------------
 # Configuración inicial
@@ -29,7 +34,7 @@ except (AttributeError, FileNotFoundError):
 
 DEMO_MODE = not api_key_available
 
-st.set_page_config(page_title="Minutas AI", page_icon="🗒️", layout="wide")
+st.set_page_config(page_title="Minutas AI", layout="wide")
 
 # ---------------------------------------------------------------------
 # CSS de alineación fina
@@ -59,10 +64,10 @@ st.title("Automatización de Minutas")
 
 # Mostrar estado de la API
 if api_key_available:
-    st.success("🤖 OpenAI API conectada - Generación inteligente habilitada")
+    st.success("OpenAI API conectada - Generación inteligente habilitada")
 else:
-    st.warning("⚠️ OpenAI API no disponible - Usando modo demostración")
-    st.info("💡 Para habilitar la generación inteligente, configura tu API key de OpenAI en los secrets de Streamlit Cloud")
+    st.warning("OpenAI API no disponible - Usando modo demostración")
+    st.info("Para habilitar la generación inteligente, configura tu API key de OpenAI en los secrets de Streamlit Cloud")
 
 st.markdown(
     """
@@ -115,7 +120,7 @@ with c3:
         if "output_dir" not in st.session_state:
             st.session_state["output_dir"] = tempfile.gettempdir()
         
-        st.info("📁 En Streamlit Cloud los archivos se guardan temporalmente y se pueden descargar directamente.")
+        st.info("En Streamlit Cloud los archivos se guardan temporalmente y se pueden descargar directamente.")
         st.text_input(
             label="",
             value="Directorio temporal (descarga automática)",
@@ -143,12 +148,12 @@ with c3:
                 st.session_state["output_dir"] = new_dir
 
         with btn_col:
-            if st.button("📁 Examinar"):
+            if st.button("Examinar"):
                 st.session_state["show_folder_picker"] = True
 
         # File uploader para selección de carpeta (solo local)
         if st.session_state.get("show_folder_picker", False):
-            st.info("💡 Selecciona cualquier archivo dentro de la carpeta donde quieres guardar las minutas")
+            st.info("Selecciona cualquier archivo dentro de la carpeta donde quieres guardar las minutas")
             folder_anchor = st.file_uploader(
                 "Archivo de referencia para la carpeta",
                 type=None,
@@ -159,7 +164,7 @@ with c3:
             if folder_anchor:
                 st.session_state["output_dir"] = str(Path(folder_anchor.name).parent)
                 st.session_state["show_folder_picker"] = False
-                st.success(f"📁 Directorio seleccionado: {st.session_state['output_dir']}")
+                st.success(f"Directorio seleccionado: {st.session_state['output_dir']}")
                 st.rerun()
 
 output_dir = st.session_state["output_dir"]
@@ -258,78 +263,90 @@ disabled = not bool(st.session_state.texto_transcripcion.strip())
 
 if st.button("Generar Minuta", disabled=disabled):
     with st.spinner("Generando minuta..."):
-        if DEMO_MODE:
-            payload = base_payload(
-                proyecto=proyecto,
-                fecha=str(fecha),
-                participantes=participantes,
-            )
-            payload["resumen"] = "Minuta generada en modo demostración."
-            minuta_md = render_markdown(payload)
-        else:
-            bloques = chunk_text(
-                st.session_state.texto_transcripcion,
-                target_tokens=tokens_por_bloque
-            )
-            parciales = map_blocks(bloques, model=modelo_map)
-            reducido = reduce_summaries(parciales, model=modelo_reduce)
-            final = consistency_check(reducido, model=modelo_reduce)
-            payload = json.loads(final)
-            payload["participantes"] = participantes
-            minuta_md = render_markdown(payload)
-
-        base_path = Path(output_dir) / f"minuta_{proyecto.replace(' ', '_')}_{fecha}"
-        
-        # Detectar si estamos en Streamlit Cloud
-        is_cloud = os.getenv("STREAMLIT_SHARING_MODE") or "streamlit.app" in os.getenv("HOSTNAME", "") or output_dir == "/tmp"
-        
-        if not is_cloud:
-            # Solo guardar archivos si NO estamos en la nube
-            try:
-                save_outputs(minuta_md, payload, base_path)
-                st.success(f"✅ Minuta generada y guardada en: {base_path.parent}")
-            except Exception as e:
-                st.warning(f"⚠️ No se pudo guardar en {output_dir}: {e}")
-                is_cloud = True  # Forzar modo descarga si falla el guardado
-        
-        if is_cloud:
-            st.success("✅ Minuta generada correctamente.")
-            # En Streamlit Cloud, ofrecer descarga directa
-            st.markdown("### 📥 Descargar archivos")
-            
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                # Descargar Markdown
-                st.download_button(
-                    label="📄 Descargar MD",
-                    data=minuta_md,
-                    file_name=f"minuta_{proyecto.replace(' ', '_')}_{fecha}.md",
-                    mime="text/markdown"
+        try:
+            if DEMO_MODE:
+                payload = base_payload(
+                    proyecto=proyecto,
+                    fecha=str(fecha),
+                    participantes=participantes,
                 )
-            
-            with col2:
-                # Descargar JSON
-                json_data = json.dumps(payload, ensure_ascii=False, indent=2)
-                st.download_button(
-                    label="📋 Descargar JSON", 
-                    data=json_data,
-                    file_name=f"minuta_{proyecto.replace(' ', '_')}_{fecha}.json",
-                    mime="application/json"
+                payload["resumen"] = "Minuta generada en modo demostración."
+                minuta_md = render_markdown(payload)
+            else:
+                bloques = chunk_text(
+                    st.session_state.texto_transcripcion,
+                    target_tokens=tokens_por_bloque
                 )
-            
-            with col3:
-                # Intentar generar PDF si pypandoc está disponible
+                parciales = map_blocks(bloques, model=modelo_map)
+                reducido = reduce_summaries(parciales, model=modelo_reduce)
+                final = consistency_check(reducido, model=modelo_reduce)
+                
                 try:
-                    import pypandoc
-                    pdf_data = pypandoc.convert_text(minuta_md, "pdf", format="md")
+                    payload = json.loads(final)
+                except json.JSONDecodeError as e:
+                    st.error(f"Error procesando respuesta de AI: {e}")
+                    st.text_area("Respuesta cruda de AI:", final, height=200)
+                    st.stop()
+                
+                payload["participantes"] = participantes
+                minuta_md = render_markdown(payload)
+
+            base_path = Path(output_dir) / f"minuta_{proyecto.replace(' ', '_')}_{fecha}"
+            
+            # Detectar si estamos en Streamlit Cloud
+            is_cloud = os.getenv("STREAMLIT_SHARING_MODE") or "streamlit.app" in os.getenv("HOSTNAME", "") or output_dir == "/tmp"
+            
+            if not is_cloud:
+                # Solo guardar archivos si NO estamos en la nube
+                try:
+                    save_outputs(minuta_md, payload, base_path)
+                    st.success(f"Minuta generada y guardada en: {base_path.parent}")
+                except Exception as e:
+                    st.warning(f"No se pudo guardar en {output_dir}: {e}")
+                    is_cloud = True  # Forzar modo descarga si falla el guardado
+            
+            if is_cloud:
+                st.success("Minuta generada correctamente.")
+                # En Streamlit Cloud, ofrecer descarga directa
+                st.markdown("### Descargar archivos")
+                
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    # Descargar Markdown
                     st.download_button(
-                        label="📑 Descargar PDF",
-                        data=pdf_data,
-                        file_name=f"minuta_{proyecto.replace(' ', '_')}_{fecha}.pdf",
-                        mime="application/pdf"
+                        label="Descargar MD",
+                        data=minuta_md,
+                        file_name=f"minuta_{proyecto.replace(' ', '_')}_{fecha}.md",
+                        mime="text/markdown"
                     )
-                except Exception:
-                    st.info("PDF no disponible (requiere pandoc)")
-        
-        st.text_area("Vista previa de la minuta", minuta_md, height=420)
+                
+                with col2:
+                    # Descargar JSON
+                    json_data = json.dumps(payload, ensure_ascii=False, indent=2)
+                    st.download_button(
+                        label="Descargar JSON", 
+                        data=json_data,
+                        file_name=f"minuta_{proyecto.replace(' ', '_')}_{fecha}.json",
+                        mime="application/json"
+                    )
+                
+                with col3:
+                    # Intentar generar PDF si pypandoc está disponible
+                    try:
+                        import pypandoc
+                        pdf_data = pypandoc.convert_text(minuta_md, "pdf", format="md")
+                        st.download_button(
+                            label="Descargar PDF",
+                            data=pdf_data,
+                            file_name=f"minuta_{proyecto.replace(' ', '_')}_{fecha}.pdf",
+                            mime="application/pdf"
+                        )
+                    except Exception:
+                        st.info("PDF no disponible (requiere pandoc)")
+            
+            st.text_area("Vista previa de la minuta", minuta_md, height=420)
+            
+        except Exception as e:
+            st.error(f"Error generando minuta: {e}")
+            st.info("Intenta nuevamente o verifica la transcripción.")
