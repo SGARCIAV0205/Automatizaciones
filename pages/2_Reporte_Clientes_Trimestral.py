@@ -18,22 +18,29 @@ try:
     from modules.db_adapters import apply_database_patches
 except ImportError as e:
     # Fallback: cargar módulos directamente desde archivos
-    modules_to_load = ['auth.py', 'db_adapters.py']
+    modules_to_load = {
+        'auth.py': ['authenticate_app', 'render_session_footer'],
+        'ui_theme.py': ['apply_theme', 'sidebar_brand'],
+        'reporte_clientes_trimestral.py': ['run_reporte_clientes_trimestral'],
+        'openai_client.py': ['render_openai_config_sidebar'],
+        'db_adapters.py': ['apply_database_patches']
+    }
     
-    for module_file in modules_to_load:
+    for module_file, functions in modules_to_load.items():
         module_path = root_dir / "modules" / module_file
         if module_path.exists():
-            with open(module_path, 'r', encoding='utf-8') as f:
-                exec(f.read(), globals())
-    
-    # Intentar importar otros módulos
-    try:
-        from modules.ui_theme import apply_theme, sidebar_brand
-        from modules.reporte_clientes_trimestral import run_reporte_clientes_trimestral
-        from modules.openai_client import render_openai_config_sidebar
-    except ImportError as e2:
-        st.error(f"Error importando módulos: {e2}")
-        st.stop()
+            try:
+                with open(module_path, 'r', encoding='utf-8') as f:
+                    module_code = f.read()
+                    # Crear un namespace temporal para el módulo
+                    module_namespace = {}
+                    exec(module_code, module_namespace)
+                    # Importar las funciones necesarias al namespace global
+                    for func_name in functions:
+                        if func_name in module_namespace:
+                            globals()[func_name] = module_namespace[func_name]
+            except Exception as e2:
+                st.error(f"Error cargando {module_file}: {e2}")
     
     # Definir apply_database_patches si no existe
     if 'apply_database_patches' not in globals():

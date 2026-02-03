@@ -12,7 +12,40 @@ from typing import List, Dict, Any
 import streamlit as st
 
 # Importar los adaptadores de la base de datos
-from .database import ClientesAdapter, RadarAdapter, Reuniones1to1Adapter
+try:
+    from .database import ClientesAdapter, RadarAdapter, Reuniones1to1Adapter
+except ImportError:
+    # Fallback para importación absoluta
+    try:
+        from modules.database import ClientesAdapter, RadarAdapter, Reuniones1to1Adapter
+    except ImportError:
+        # Fallback final - definir adaptadores vacíos
+        class ClientesAdapter:
+            @staticmethod
+            def load_clients():
+                return []
+            @staticmethod
+            def add_client(client_data):
+                pass
+        
+        class RadarAdapter:
+            @staticmethod
+            def load_config():
+                return {}
+            @staticmethod
+            def save_config(config):
+                pass
+        
+        class Reuniones1to1Adapter:
+            @staticmethod
+            def load_participantes():
+                return pd.DataFrame()
+            @staticmethod
+            def load_historial():
+                return pd.DataFrame()
+            @staticmethod
+            def save_historial(df):
+                pass
 
 # ============================================================================
 # ADAPTADOR PARA REPORTE CLIENTES TRIMESTRAL

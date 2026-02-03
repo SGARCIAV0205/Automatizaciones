@@ -23,17 +23,17 @@ CHECK_PROMPT = """Revisa contradicciones, fechas imposibles y tareas sin verbo d
 Corrige mínimamente y devuelve el MISMO JSON con estructura final para minuta:
 {json_entrada}"""
 
-def map_blocks(blocks: list[str]) -> list[str]:
+def map_blocks(blocks: list[str], model: str = MAP_MODEL) -> list[str]:
     outs = []
     for b in blocks:
         msg = [{"role": "user", "content": MAP_PROMPT.format(texto=b)}]
-        outs.append(chat(MAP_MODEL, msg, temperature=0.2))
+        outs.append(chat(model, msg, temperature=0.2))
     return outs
 
-def reduce_summaries(mapped_jsons: list[str]) -> str:
+def reduce_summaries(mapped_jsons: list[str], model: str = REDUCE_MODEL) -> str:
     msg = [{"role":"user","content": REDUCE_PROMPT.format(jsons=mapped_jsons)}]
-    return chat(REDUCE_MODEL, msg, temperature=0.2)
+    return chat(model, msg, temperature=0.2)
 
-def consistency_check(json_text: str) -> str:
+def consistency_check(json_text: str, model: str = CHECK_MODEL) -> str:
     msg = [{"role":"user","content": CHECK_PROMPT.format(json_entrada=json_text)}]
-    return chat(CHECK_MODEL, msg, temperature=0.1)
+    return chat(model, msg, temperature=0.1)
