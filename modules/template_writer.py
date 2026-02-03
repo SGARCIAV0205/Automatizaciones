@@ -56,7 +56,7 @@ def run_template_writer():
         st.stop()
 
     # --------------------------------------------------
-    # 2) Ejecutar módulo real
+    # 2) Ejecutar módulo real usando importlib para evitar conflictos de caché
     # --------------------------------------------------
     original_sys_path = list(sys.path)
     
@@ -65,8 +65,11 @@ def run_template_writer():
         sys.path.insert(0, str(modulo_root))
         sys.path.insert(0, str(modulo_root / "core"))
 
-        # Importar el módulo específico de template writer
-        import ui_app as template_app
+        # Usar importlib con nombre único para evitar conflictos de caché
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("template_writer_app", ui_app_path)
+        template_app = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(template_app)
 
         if not hasattr(template_app, "app"):
             st.error(

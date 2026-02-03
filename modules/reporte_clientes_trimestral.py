@@ -56,7 +56,7 @@ def run_reporte_clientes_trimestral():
         st.stop()
 
     # --------------------------------------------------
-    # 2) Ejecutar módulo real
+    # 2) Ejecutar módulo real usando importlib para evitar conflictos de caché
     # --------------------------------------------------
     original_sys_path = list(sys.path)
     
@@ -64,8 +64,11 @@ def run_reporte_clientes_trimestral():
         # Agregar las rutas necesarias para el módulo
         sys.path.insert(0, str(modulo_root))
 
-        # Importar el módulo específico de reporte clientes
-        import app as reporte_app
+        # Usar importlib con nombre único para evitar conflictos de caché
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("reporte_clientes_app", app_path)
+        reporte_app = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(reporte_app)
 
         if not hasattr(reporte_app, "main"):
             st.error(

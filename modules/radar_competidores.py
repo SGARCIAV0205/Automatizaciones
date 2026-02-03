@@ -56,7 +56,7 @@ def run_radar_competidores():
         st.stop()
 
     # --------------------------------------------------
-    # 2) Ejecutar módulo real
+    # 2) Ejecutar módulo real usando importlib para evitar conflictos de caché
     # --------------------------------------------------
     original_sys_path = list(sys.path)
     
@@ -66,8 +66,11 @@ def run_radar_competidores():
         sys.path.insert(0, str(modulo_root / "ui"))
         sys.path.insert(0, str(modulo_root / "src"))
 
-        # Importar el módulo específico del radar
-        import app as radar_app
+        # Usar importlib con nombre único para evitar conflictos de caché
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("radar_competidores_app", ui_app_path)
+        radar_app = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(radar_app)
 
         if not hasattr(radar_app, "main"):
             st.error(
@@ -84,7 +87,7 @@ def run_radar_competidores():
         st.info("Verificando estructura de archivos...")
         
         # Debug info
-        if st.checkbox("Mostrar información de debug"):
+        if st.checkbox("Mostrar información de debug - Radar"):
             st.write(f"**Módulo root:** {modulo_root}")
             st.write(f"**UI path:** {modulo_root / 'ui'}")
             st.write(f"**App.py existe:** {ui_app_path.exists()}")
