@@ -4,10 +4,13 @@ Módulo de autenticación para el Asistente Virtual AI
 import streamlit as st
 import hashlib
 import os
-from dotenv import load_dotenv
 
-# Cargar variables de entorno
-load_dotenv()
+# Cargar variables de entorno (opcional)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv no disponible, usar solo variables de entorno del sistema
 
 def hash_password(password: str) -> str:
     """Crear hash seguro de la contraseña"""
