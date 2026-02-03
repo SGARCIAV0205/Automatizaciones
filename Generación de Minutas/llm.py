@@ -1,11 +1,24 @@
 # llm.py
 import os
-from dotenv import load_dotenv
+import streamlit as st
 import tiktoken
 
-load_dotenv()
+# Detectar si estamos en modo demo
+def is_demo_mode():
+    # Verificar si hay API key disponible
+    api_key = None
+    
+    # Intentar obtener desde Streamlit secrets primero
+    try:
+        api_key = st.secrets.get("OPENAI_API_KEY")
+    except (AttributeError, FileNotFoundError):
+        # Fallback a variables de entorno
+        api_key = os.getenv("OPENAI_API_KEY")
+    
+    # Si no hay API key, usar modo demo
+    return not bool(api_key)
 
-DEMO_MODE = os.getenv("DEMO_MODE", "false").lower() == "true"
+DEMO_MODE = is_demo_mode()
 
 # Precios solo para estimación en UI (no se usan en demo)
 PRICES = {
@@ -26,11 +39,18 @@ def estimate_cost(input_tokens: int, output_tokens: int, model: str) -> float:
 
 def chat(model: str, messages: list, temperature: float = 0.2) -> str:
     """
-    En DEMO_MODE (o sin API key) NO llama a OpenAI.
-    Devuelve JSON de ejemplo suficiente para que la UI funcione.
+    Función de chat que usa la API key configurada en Streamlit secrets o variables de entorno.
+    Si no hay API key disponible, usa modo demo.
     """
-    # Si no hay clave o estamos en demo, retornamos mocks
-    if DEMO_MODE or not os.getenv("OPENAI_API_KEY"):
+    # Obtener API key
+    api_key = None
+    try:
+        api_key = st.secrets.get("OPENAI_API_KEY")
+    except (AttributeError, FileNotFoundError):
+        api_key = os.getenv("OPENAI_API_KEY")
+    
+    # Si no hay clave, usar modo demo
+    if not api_key:
         content = (messages[0].get("content") or "").lower()
 
         # Reduce/Check piden estructura final
@@ -56,8 +76,17 @@ def chat(model: str, messages: list, temperature: float = 0.2) -> str:
             '}'
         )
 
-    # Modo real: solo si hay API key
-    from openai import OpenAI
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    resp = client.chat.completions.create(model=model, messages=messages, temperature=temperature)
-    return resp.choices[0].message.content
+    # Modo real: usar API key disponible
+    try:
+        from openai import OpenAI
+        client = OpenAI(api_key=api_key)
+        resp = client.chat.completions.create(
+            model=model, 
+            messages=messages, 
+            temperature=temperature
+        )
+        return resp.choices[0].message.content
+    except Exception as e:
+        st.error(f"Error con OpenAI API: {e}")
+        # Fallback a modo demo si hay error
+        return '{"resumen":"Error al conectar con OpenAI. Usando modo demo.","decisiones":[],"acuerdos":[],"tareas":[],"riesgos":[],"proximos_pasos":[]}'

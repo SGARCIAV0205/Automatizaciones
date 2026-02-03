@@ -19,7 +19,15 @@ from llm import count_tokens, estimate_cost
 # Configuración inicial
 # ---------------------------------------------------------------------
 load_dotenv()
-DEMO_MODE = os.getenv("DEMO_MODE", "false").lower() == "true"
+
+# Verificar disponibilidad de API key
+api_key_available = False
+try:
+    api_key_available = bool(st.secrets.get("OPENAI_API_KEY"))
+except (AttributeError, FileNotFoundError):
+    api_key_available = bool(os.getenv("OPENAI_API_KEY"))
+
+DEMO_MODE = not api_key_available
 
 st.set_page_config(page_title="Minutas AI", page_icon="🗒️", layout="wide")
 
@@ -48,6 +56,13 @@ st.markdown(
 # Header
 # =========================
 st.title("Automatización de Minutas")
+
+# Mostrar estado de la API
+if api_key_available:
+    st.success("🤖 OpenAI API conectada - Generación inteligente habilitada")
+else:
+    st.warning("⚠️ OpenAI API no disponible - Usando modo demostración")
+    st.info("💡 Para habilitar la generación inteligente, configura tu API key de OpenAI en los secrets de Streamlit Cloud")
 
 st.markdown(
     """
@@ -264,14 +279,21 @@ if st.button("Generar Minuta", disabled=disabled):
             minuta_md = render_markdown(payload)
 
         base_path = Path(output_dir) / f"minuta_{proyecto.replace(' ', '_')}_{fecha}"
-        save_outputs(minuta_md, payload, base_path)
-
-        st.success("✅ Minuta generada correctamente.")
         
         # Detectar si estamos en Streamlit Cloud
-        is_cloud = os.getenv("STREAMLIT_SHARING_MODE") or "streamlit.app" in os.getenv("HOSTNAME", "")
+        is_cloud = os.getenv("STREAMLIT_SHARING_MODE") or "streamlit.app" in os.getenv("HOSTNAME", "") or output_dir == "/tmp"
+        
+        if not is_cloud:
+            # Solo guardar archivos si NO estamos en la nube
+            try:
+                save_outputs(minuta_md, payload, base_path)
+                st.success(f"✅ Minuta generada y guardada en: {base_path.parent}")
+            except Exception as e:
+                st.warning(f"⚠️ No se pudo guardar en {output_dir}: {e}")
+                is_cloud = True  # Forzar modo descarga si falla el guardado
         
         if is_cloud:
+            st.success("✅ Minuta generada correctamente.")
             # En Streamlit Cloud, ofrecer descarga directa
             st.markdown("### 📥 Descargar archivos")
             
@@ -309,8 +331,5 @@ if st.button("Generar Minuta", disabled=disabled):
                     )
                 except Exception:
                     st.info("PDF no disponible (requiere pandoc)")
-        else:
-            # En local, mostrar ubicación del archivo
-            st.info(f"📁 Archivos guardados en: {base_path.parent}")
         
         st.text_area("Vista previa de la minuta", minuta_md, height=420)
