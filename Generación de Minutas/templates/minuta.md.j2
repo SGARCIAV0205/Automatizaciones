@@ -1,0 +1,70 @@
+# {{ REPORT_TITLE | default("Minuta de Reunión") }}
+
+**Proyecto:** {{ proyecto | default("Sin especificar") }}  
+**Fecha:** {{ fecha | default("Sin especificar") }}  
+
+{% if participantes %}
+## Participantes
+
+{% for p in participantes %}
+- **{{ p.nombre }}** ({{ p.email }}) - {{ p.rol | default("Participante") }}
+{% endfor %}
+{% endif %}
+
+## Resumen Ejecutivo
+
+{{ resumen | default("Resumen no disponible") }}
+
+{% if objetivos %}
+## Objetivos de la Reunión
+
+{{ objetivos }}
+{% endif %}
+
+{% if decisiones %}
+## Decisiones Tomadas
+
+{% for decision in decisiones %}
+- {{ decision }}
+{% endfor %}
+{% endif %}
+
+{% if acuerdos %}
+## Acuerdos Alcanzados
+
+{% for acuerdo in acuerdos %}
+- {{ acuerdo }}
+{% endfor %}
+{% endif %}
+
+{% if tareas %}
+## Tareas Asignadas
+
+{% for tarea in tareas %}
+- **{{ tarea.descripcion }}**
+  - Responsable: {{ tarea.responsable | default("Por asignar") }}
+  - Fecha límite: {{ tarea.fecha | default("Por definir") }}
+  {% if tarea.metrica %}
+  - Métrica: {{ tarea.metrica }}
+  {% endif %}
+{% endfor %}
+{% endif %}
+
+{% if riesgos %}
+## Riesgos Identificados
+
+{% for riesgo in riesgos %}
+- {{ riesgo }}
+{% endfor %}
+{% endif %}
+
+{% if proximos_pasos %}
+## Próximos Pasos
+
+{% for paso in proximos_pasos %}
+- {{ paso }}
+{% endfor %}
+{% endif %}
+
+---
+*Minuta generada automáticamente por el Asistente Virtual AI - Ubimia*

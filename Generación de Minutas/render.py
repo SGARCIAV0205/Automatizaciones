@@ -3,8 +3,23 @@ from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
 import pypandoc
 
-def render_markdown(payload: dict, templates_dir="templates", tpl_name="minuta.md.j2") -> str:
-    env = Environment(loader=FileSystemLoader(templates_dir), autoescape=False, trim_blocks=True, lstrip_blocks=True)
+def render_markdown(payload: dict, templates_dir=None, tpl_name="minuta.md.j2") -> str:
+    # Si no se especifica templates_dir, usar la ruta relativa al archivo actual
+    if templates_dir is None:
+        current_dir = Path(__file__).parent
+        templates_dir = current_dir / "templates"
+    
+    # Asegurar que templates_dir sea un Path y existe
+    templates_path = Path(templates_dir)
+    if not templates_path.exists():
+        raise FileNotFoundError(f"Directorio de templates no encontrado: {templates_path}")
+    
+    env = Environment(
+        loader=FileSystemLoader(str(templates_path)), 
+        autoescape=False, 
+        trim_blocks=True, 
+        lstrip_blocks=True
+    )
     tpl = env.get_template(tpl_name)
     return tpl.render(**payload)
 

@@ -91,35 +91,61 @@ with c2:
 with c3:
     st.markdown("**Directorio de salida**")
 
-    if "output_dir" not in st.session_state:
-        st.session_state["output_dir"] = r"C:\Users\sara.garcia\OneDrive"
-
-    dir_col, btn_col = st.columns([5, 2])
-
-    with dir_col:
+    # Detectar si estamos en Streamlit Cloud o local
+    is_cloud = os.getenv("STREAMLIT_SHARING_MODE") or "streamlit.app" in os.getenv("HOSTNAME", "")
+    
+    if is_cloud:
+        # En Streamlit Cloud, usar directorio temporal
+        import tempfile
+        if "output_dir" not in st.session_state:
+            st.session_state["output_dir"] = tempfile.gettempdir()
+        
+        st.info("📁 En Streamlit Cloud los archivos se guardan temporalmente y se pueden descargar directamente.")
         st.text_input(
             label="",
-            value=st.session_state["output_dir"],
+            value="Directorio temporal (descarga automática)",
             disabled=True,
             key="output_dir_display"
         )
+    else:
+        # En local, permitir selección de directorio
+        if "output_dir" not in st.session_state:
+            st.session_state["output_dir"] = str(Path.home() / "Downloads")
 
-    with btn_col:
-        if st.button("Examinar"):
-            st.session_state["show_folder_picker"] = True
+        dir_col, btn_col = st.columns([5, 2])
 
-# File uploader oculto
-if st.session_state.get("show_folder_picker", False):
-    folder_anchor = st.file_uploader(
-        "Selecciona cualquier archivo dentro de la carpeta deseada",
-        type=None,
-        key="hidden_folder_picker"
-    )
+        with dir_col:
+            # Permitir edición manual del directorio
+            new_dir = st.text_input(
+                label="",
+                value=st.session_state["output_dir"],
+                key="output_dir_input",
+                help="Puedes editar la ruta manualmente"
+            )
+            
+            # Actualizar si cambió
+            if new_dir != st.session_state["output_dir"]:
+                st.session_state["output_dir"] = new_dir
 
-    if folder_anchor:
-        st.session_state["output_dir"] = str(Path(folder_anchor.name).parent)
-        st.session_state["show_folder_picker"] = False
-        st.success(f"Directorio seleccionado: {st.session_state['output_dir']}")
+        with btn_col:
+            if st.button("📁 Examinar"):
+                st.session_state["show_folder_picker"] = True
+
+        # File uploader para selección de carpeta (solo local)
+        if st.session_state.get("show_folder_picker", False):
+            st.info("💡 Selecciona cualquier archivo dentro de la carpeta donde quieres guardar las minutas")
+            folder_anchor = st.file_uploader(
+                "Archivo de referencia para la carpeta",
+                type=None,
+                key="hidden_folder_picker",
+                help="El archivo no se usará, solo para seleccionar la carpeta"
+            )
+
+            if folder_anchor:
+                st.session_state["output_dir"] = str(Path(folder_anchor.name).parent)
+                st.session_state["show_folder_picker"] = False
+                st.success(f"📁 Directorio seleccionado: {st.session_state['output_dir']}")
+                st.rerun()
 
 output_dir = st.session_state["output_dir"]
 
@@ -240,5 +266,51 @@ if st.button("Generar Minuta", disabled=disabled):
         base_path = Path(output_dir) / f"minuta_{proyecto.replace(' ', '_')}_{fecha}"
         save_outputs(minuta_md, payload, base_path)
 
-        st.success("Minuta generada correctamente.")
+        st.success("✅ Minuta generada correctamente.")
+        
+        # Detectar si estamos en Streamlit Cloud
+        is_cloud = os.getenv("STREAMLIT_SHARING_MODE") or "streamlit.app" in os.getenv("HOSTNAME", "")
+        
+        if is_cloud:
+            # En Streamlit Cloud, ofrecer descarga directa
+            st.markdown("### 📥 Descargar archivos")
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                # Descargar Markdown
+                st.download_button(
+                    label="📄 Descargar MD",
+                    data=minuta_md,
+                    file_name=f"minuta_{proyecto.replace(' ', '_')}_{fecha}.md",
+                    mime="text/markdown"
+                )
+            
+            with col2:
+                # Descargar JSON
+                json_data = json.dumps(payload, ensure_ascii=False, indent=2)
+                st.download_button(
+                    label="📋 Descargar JSON", 
+                    data=json_data,
+                    file_name=f"minuta_{proyecto.replace(' ', '_')}_{fecha}.json",
+                    mime="application/json"
+                )
+            
+            with col3:
+                # Intentar generar PDF si pypandoc está disponible
+                try:
+                    import pypandoc
+                    pdf_data = pypandoc.convert_text(minuta_md, "pdf", format="md")
+                    st.download_button(
+                        label="📑 Descargar PDF",
+                        data=pdf_data,
+                        file_name=f"minuta_{proyecto.replace(' ', '_')}_{fecha}.pdf",
+                        mime="application/pdf"
+                    )
+                except Exception:
+                    st.info("PDF no disponible (requiere pandoc)")
+        else:
+            # En local, mostrar ubicación del archivo
+            st.info(f"📁 Archivos guardados en: {base_path.parent}")
+        
         st.text_area("Vista previa de la minuta", minuta_md, height=420)
