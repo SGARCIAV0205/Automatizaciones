@@ -46,16 +46,26 @@ def run_reporte_clientes_trimestral():
         )
         st.stop()
 
+    # Verificar que existe el archivo app.py
+    app_path = modulo_root / "app.py"
+    if not app_path.exists():
+        st.error(
+            f"No se encontró 'app.py' en:\n"
+            f"{modulo_root}"
+        )
+        st.stop()
+
     # --------------------------------------------------
     # 2) Ejecutar módulo real
     # --------------------------------------------------
     original_sys_path = list(sys.path)
-    sys.path.insert(0, str(modulo_root))
-
+    
     try:
-        import app as reporte_app
-        #st.write("APP REAL:", reporte_app.__file__)
+        # Agregar las rutas necesarias para el módulo
+        sys.path.insert(0, str(modulo_root))
 
+        # Importar el módulo específico de reporte clientes
+        import app as reporte_app
 
         if not hasattr(reporte_app, "main"):
             st.error(
@@ -64,8 +74,25 @@ def run_reporte_clientes_trimestral():
             )
             st.stop()
 
+        # Ejecutar la interfaz del reporte con skip_page_config=True
         reporte_app.main(skip_page_config=True)
 
+    except ImportError as e:
+        st.error(f"Error importando el módulo Reporte Clientes Trimestral: {e}")
+        st.info("Verificando estructura de archivos...")
+        
+        # Debug info
+        if st.checkbox("Mostrar información de debug - Reporte Clientes"):
+            st.write(f"**Módulo root:** {modulo_root}")
+            st.write(f"**App.py existe:** {app_path.exists()}")
+            st.write(f"**Sys.path actual:** {sys.path[:3]}")
+        
+        st.stop()
+        
+    except Exception as e:
+        st.error(f"Error ejecutando el módulo Reporte Clientes Trimestral: {e}")
+        st.stop()
+        
     finally:
         sys.path = original_sys_path
 

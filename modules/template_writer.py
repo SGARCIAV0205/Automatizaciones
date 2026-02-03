@@ -46,14 +46,26 @@ def run_template_writer():
         )
         st.stop()
 
+    # Verificar que existe el archivo ui_app.py en core/
+    ui_app_path = modulo_root / "core" / "ui_app.py"
+    if not ui_app_path.exists():
+        st.error(
+            f"No se encontró 'ui_app.py' en:\n"
+            f"{modulo_root / 'core'}"
+        )
+        st.stop()
+
     # --------------------------------------------------
     # 2) Ejecutar módulo real
     # --------------------------------------------------
     original_sys_path = list(sys.path)
-    sys.path.insert(0, str(modulo_root))
-    sys.path.insert(0, str(modulo_root / "core"))
-
+    
     try:
+        # Agregar las rutas necesarias para el módulo
+        sys.path.insert(0, str(modulo_root))
+        sys.path.insert(0, str(modulo_root / "core"))
+
+        # Importar el módulo específico de template writer
         import ui_app as template_app
 
         if not hasattr(template_app, "app"):
@@ -63,7 +75,25 @@ def run_template_writer():
             )
             st.stop()
 
+        # Ejecutar la interfaz del template writer con skip_page_config=True
         template_app.app(skip_page_config=True)
 
+    except ImportError as e:
+        st.error(f"Error importando el módulo Template Writer: {e}")
+        st.info("Verificando estructura de archivos...")
+        
+        # Debug info
+        if st.checkbox("Mostrar información de debug - Template Writer"):
+            st.write(f"**Módulo root:** {modulo_root}")
+            st.write(f"**Core path:** {modulo_root / 'core'}")
+            st.write(f"**ui_app.py existe:** {ui_app_path.exists()}")
+            st.write(f"**Sys.path actual:** {sys.path[:3]}")
+        
+        st.stop()
+        
+    except Exception as e:
+        st.error(f"Error ejecutando el módulo Template Writer: {e}")
+        st.stop()
+        
     finally:
         sys.path = original_sys_path
