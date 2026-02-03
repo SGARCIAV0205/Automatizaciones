@@ -46,14 +46,27 @@ def run_radar_competidores():
         )
         st.stop()
 
+    # Verificar que existe el archivo app.py en ui/
+    ui_app_path = modulo_root / "ui" / "app.py"
+    if not ui_app_path.exists():
+        st.error(
+            f"No se encontró 'app.py' en:\n"
+            f"{modulo_root / 'ui'}"
+        )
+        st.stop()
+
     # --------------------------------------------------
     # 2) Ejecutar módulo real
     # --------------------------------------------------
     original_sys_path = list(sys.path)
-    sys.path.insert(0, str(modulo_root))
-    sys.path.insert(0, str(modulo_root / "ui"))
-
+    
     try:
+        # Agregar las rutas necesarias para el módulo
+        sys.path.insert(0, str(modulo_root))
+        sys.path.insert(0, str(modulo_root / "ui"))
+        sys.path.insert(0, str(modulo_root / "src"))
+
+        # Importar el módulo específico del radar
         import app as radar_app
 
         if not hasattr(radar_app, "main"):
@@ -63,7 +76,25 @@ def run_radar_competidores():
             )
             st.stop()
 
+        # Ejecutar la interfaz del radar con skip_page_config=True
         radar_app.main(skip_page_config=True)
 
+    except ImportError as e:
+        st.error(f"Error importando el módulo Radar Competidores: {e}")
+        st.info("Verificando estructura de archivos...")
+        
+        # Debug info
+        if st.checkbox("Mostrar información de debug"):
+            st.write(f"**Módulo root:** {modulo_root}")
+            st.write(f"**UI path:** {modulo_root / 'ui'}")
+            st.write(f"**App.py existe:** {ui_app_path.exists()}")
+            st.write(f"**Sys.path actual:** {sys.path[:3]}")
+        
+        st.stop()
+        
+    except Exception as e:
+        st.error(f"Error ejecutando el módulo Radar Competidores: {e}")
+        st.stop()
+        
     finally:
         sys.path = original_sys_path
