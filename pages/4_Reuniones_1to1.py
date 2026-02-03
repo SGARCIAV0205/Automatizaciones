@@ -76,6 +76,27 @@ render_openai_config_sidebar()
 # --------------------------------------------------
 apply_database_patches()
 
+# Debug info para verificar estado
+if st.sidebar.checkbox("🔍 Debug - Estado del Sistema", value=False):
+    st.sidebar.markdown("### Estado de Base de Datos")
+    try:
+        from modules.database import get_database_status
+        status = get_database_status()
+        st.sidebar.write(f"**Conectada:** {'✅' if status['connected'] else '❌'}")
+        st.sidebar.write(f"**Supabase disponible:** {'✅' if status['supabase_available'] else '❌'}")
+        st.sidebar.write(f"**URL configurada:** {'✅' if status['url_configured'] else '❌'}")
+        st.sidebar.write(f"**Key configurada:** {'✅' if status['key_configured'] else '❌'}")
+        
+        if not status['connected']:
+            st.sidebar.info("ℹ️ Usando archivos CSV como fallback")
+    except Exception as e:
+        st.sidebar.error(f"Error obteniendo estado: {e}")
+    
+    st.sidebar.markdown("### Módulos Cargados")
+    relevant_modules = [name for name in sys.modules.keys() if any(x in name.lower() for x in ['1to1', 'data_io', 'reuniones'])]
+    for module in relevant_modules[:5]:  # Mostrar solo los primeros 5
+        st.sidebar.write(f"- {module}")
+
 # --------------------------------------------------
 # Localizar módulo 1to1
 # --------------------------------------------------
@@ -105,6 +126,21 @@ try:
 
     loader = SourceFileLoader("one_to_one_external", str(module_path))
     one_to_one_module = loader.load_module()
+
+    # APLICAR PARCHEO DESPUÉS DE CARGAR EL MÓDULO
+    # Ahora que el módulo está cargado, aplicar parches específicos
+    try:
+        # Buscar y parchear data_io después de que se haya importado
+        for module_name, module in sys.modules.items():
+            if 'data_io' in module_name and hasattr(module, 'load_participantes'):
+                # Aplicar parches específicos para 1to1
+                from modules.database import Reuniones1to1Adapter
+                module.load_participantes = Reuniones1to1Adapter.load_participantes
+                module.load_historial = Reuniones1to1Adapter.load_historial
+                module.save_historial = Reuniones1to1Adapter.save_historial
+                break
+    except Exception as e:
+        st.warning(f"Error aplicando parches específicos para 1to1: {e}")
 
     # Evitar segunda llamada a set_page_config dentro del módulo externo
     try:

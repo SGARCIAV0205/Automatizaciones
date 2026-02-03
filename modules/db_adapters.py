@@ -84,14 +84,44 @@ def patch_radar_config():
 def patch_1to1_data_io():
     """Reemplazar funciones de data_io.py con adaptadores de BD"""
     
-    # Buscar el módulo data_io
+    # Buscar el módulo data_io en diferentes contextos
+    data_io_module = None
+    
+    # Buscar en sys.modules
     for module_name, module in sys.modules.items():
         if 'data_io' in module_name and hasattr(module, 'load_participantes'):
-            # Reemplazar funciones con adaptadores
-            module.load_participantes = Reuniones1to1Adapter.load_participantes
-            module.load_historial = Reuniones1to1Adapter.load_historial
-            module.save_historial = Reuniones1to1Adapter.save_historial
+            data_io_module = module
             break
+    
+    # Si encontramos el módulo, aplicar parches
+    if data_io_module:
+        try:
+            # Guardar funciones originales como backup
+            if not hasattr(data_io_module, '_original_load_participantes'):
+                data_io_module._original_load_participantes = data_io_module.load_participantes
+                data_io_module._original_load_historial = data_io_module.load_historial
+                data_io_module._original_save_historial = data_io_module.save_historial
+            
+            # Reemplazar con adaptadores
+            data_io_module.load_participantes = Reuniones1to1Adapter.load_participantes
+            data_io_module.load_historial = Reuniones1to1Adapter.load_historial
+            data_io_module.save_historial = Reuniones1to1Adapter.save_historial
+            
+            # Debug info
+            if hasattr(st, 'sidebar') and st.sidebar.checkbox("Debug - Parcheo 1to1", value=False):
+                st.sidebar.success(f"✅ Módulo data_io parcheado: {module_name}")
+                
+        except Exception as e:
+            if hasattr(st, 'sidebar'):
+                st.sidebar.error(f"Error parcheando data_io: {e}")
+    else:
+        # Si no encontramos el módulo, intentar parchearlo cuando se importe
+        if hasattr(st, 'sidebar') and st.sidebar.checkbox("Debug - Parcheo 1to1", value=False):
+            st.sidebar.warning("⚠️ Módulo data_io no encontrado aún")
+            st.sidebar.write("Módulos cargados:")
+            for name in sys.modules.keys():
+                if 'data_io' in name or '1to1' in name:
+                    st.sidebar.write(f"- {name}")
 
 # ============================================================================
 # FUNCIÓN PRINCIPAL DE PARCHEO
@@ -103,6 +133,19 @@ def apply_database_patches():
         patch_client_store()
         patch_radar_config() 
         patch_1to1_data_io()
+        
+        # Debug info para 1to1
+        if st.sidebar.checkbox("Debug BD - Reuniones 1to1", value=False):
+            status = get_database_status()
+            st.sidebar.write("**Estado BD:**")
+            st.sidebar.write(f"Conectada: {status['connected']}")
+            st.sidebar.write(f"Supabase disponible: {status['supabase_available']}")
+            st.sidebar.write(f"URL configurada: {status['url_configured']}")
+            st.sidebar.write(f"Key configurada: {status['key_configured']}")
+            
+            if not status['connected']:
+                st.sidebar.info("Usando CSV como fallback")
+            
     except Exception as e:
         st.warning(f"Error aplicando parches de BD: {e}")
 

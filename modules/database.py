@@ -210,50 +210,165 @@ class Reuniones1to1Adapter:
     def load_participantes() -> pd.DataFrame:
         """Cargar participantes (compatible con función original)"""
         if not db.is_connected():
-            # Fallback a DataFrame vacío con columnas correctas
-            return pd.DataFrame(columns=["id_participante", "nombre", "email", "objetivos_anuales", "fortalezas", "oportunidades_mejora"])
+            # Fallback: cargar desde CSV original
+            try:
+                from pathlib import Path
+                # Buscar el archivo CSV original
+                base_dir = Path(__file__).resolve().parents[1]  # Subir desde modules/ a raíz
+                csv_path = base_dir / "1to1" / "data" / "participantes.csv"
+                
+                if csv_path.exists():
+                    df = pd.read_csv(csv_path)
+                    if "id_participante" in df.columns and "nombre" in df.columns:
+                        return df
+                
+                # Si no encuentra el CSV, devolver DataFrame con datos de ejemplo
+                return pd.DataFrame([
+                    {"id_participante": "FER001", "nombre": "Fernando Peiró", "puesto": "Business Operations Director", "area": "", "objetivos_anuales": "", "fortalezas": "", "oportunidades": "", "notas_base": ""},
+                    {"id_participante": "GER001", "nombre": "German Valera", "puesto": "Business Operations Director", "area": "", "objetivos_anuales": "", "fortalezas": "", "oportunidades": "", "notas_base": ""},
+                    {"id_participante": "IVA001", "nombre": "Ivan Castelló", "puesto": "Director de Operación y Proyectos", "area": "", "objetivos_anuales": "", "fortalezas": "", "oportunidades": "", "notas_base": ""}
+                ])
+            except Exception as e:
+                st.warning(f"Error cargando participantes desde CSV: {e}")
+                # Fallback final con datos de ejemplo
+                return pd.DataFrame([
+                    {"id_participante": "DEMO001", "nombre": "Usuario Demo", "puesto": "Puesto Demo", "area": "Area Demo", "objetivos_anuales": "Objetivos de ejemplo", "fortalezas": "Fortalezas demo", "oportunidades": "Oportunidades demo", "notas_base": ""}
+                ])
         
         try:
             response = db.client.table('participantes_1to1').select("*").execute()
             if not response.data:
-                return pd.DataFrame(columns=["id_participante", "nombre", "email", "objetivos_anuales", "fortalezas", "oportunidades_mejora"])
+                # Si BD está conectada pero vacía, cargar desde CSV como migración
+                return Reuniones1to1Adapter.load_participantes_fallback()
             
             df = pd.DataFrame(response.data)
-            # Renombrar columnas para compatibilidad
-            if "id" in df.columns:
+            # Renombrar columnas para compatibilidad si es necesario
+            if "id" in df.columns and "id_participante" not in df.columns:
                 df = df.rename(columns={"id": "id_participante"})
             
             return df
         except Exception as e:
-            st.error(f"Error cargando participantes: {e}")
-            return pd.DataFrame(columns=["id_participante", "nombre", "email"])
+            st.warning(f"Error cargando participantes desde BD: {e}")
+            return Reuniones1to1Adapter.load_participantes_fallback()
+    
+    @staticmethod
+    def load_participantes_fallback() -> pd.DataFrame:
+        """Fallback para cargar participantes desde CSV"""
+        try:
+            from pathlib import Path
+            base_dir = Path(__file__).resolve().parents[1]
+            csv_path = base_dir / "1to1" / "data" / "participantes.csv"
+            
+            if csv_path.exists():
+                return pd.read_csv(csv_path)
+        except Exception:
+            pass
+        
+        # Fallback final con datos hardcodeados
+        return pd.DataFrame([
+            {"id_participante": "FER001", "nombre": "Fernando Peiró", "puesto": "Business Operations Director", "area": "", "objetivos_anuales": "", "fortalezas": "", "oportunidades": "", "notas_base": ""},
+            {"id_participante": "GER001", "nombre": "German Valera", "puesto": "Business Operations Director", "area": "", "objetivos_anuales": "", "fortalezas": "", "oportunidades": "", "notas_base": ""},
+            {"id_participante": "IVA001", "nombre": "Ivan Castelló", "puesto": "Director de Operación y Proyectos", "area": "", "objetivos_anuales": "", "fortalezas": "", "oportunidades": "", "notas_base": ""}
+        ])
     
     @staticmethod
     def load_historial() -> pd.DataFrame:
         """Cargar historial (compatible con función original)"""
         if not db.is_connected():
-            # Fallback a DataFrame vacío
-            columns = ["id_participante", "fecha_reunion", "objetivos_reunion", "puntos_discutidos", 
-                      "insight_coaching", "notas_reunion", "compromisos", "fecha_proxima_reunion"]
-            return pd.DataFrame(columns=columns)
+            # Fallback: cargar desde CSV original
+            try:
+                from pathlib import Path
+                base_dir = Path(__file__).resolve().parents[1]
+                csv_path = base_dir / "1to1" / "data" / "historial_1to1.csv"
+                
+                if csv_path.exists():
+                    df = pd.read_csv(csv_path, dtype=str)
+                    # Asegurar columnas requeridas
+                    required_columns = ["id_participante", "fecha_reunion", "health_energia", "health_carga_trabajo", 
+                                      "health_alineacion_objetivos", "health_notas", "preguntas_generadas",
+                                      "insight_coaching", "notas_reunion", "compromisos", "fecha_proxima_reunion"]
+                    for col in required_columns:
+                        if col not in df.columns:
+                            df[col] = None
+                    return df[required_columns]
+                
+                # Si no existe el archivo, crear DataFrame vacío con columnas correctas
+                columns = ["id_participante", "fecha_reunion", "health_energia", "health_carga_trabajo", 
+                          "health_alineacion_objetivos", "health_notas", "preguntas_generadas",
+                          "insight_coaching", "notas_reunion", "compromisos", "fecha_proxima_reunion"]
+                return pd.DataFrame(columns=columns)
+            except Exception as e:
+                st.warning(f"Error cargando historial desde CSV: {e}")
+                columns = ["id_participante", "fecha_reunion", "health_energia", "health_carga_trabajo", 
+                          "health_alineacion_objetivos", "health_notas", "preguntas_generadas",
+                          "insight_coaching", "notas_reunion", "compromisos", "fecha_proxima_reunion"]
+                return pd.DataFrame(columns=columns)
         
         try:
             response = db.client.table('historial_1to1').select("*").order("fecha_reunion", desc=True).execute()
             if not response.data:
-                columns = ["id_participante", "fecha_reunion", "objetivos_reunion", "puntos_discutidos", 
+                columns = ["id_participante", "fecha_reunion", "health_energia", "health_carga_trabajo", 
+                          "health_alineacion_objetivos", "health_notas", "preguntas_generadas",
                           "insight_coaching", "notas_reunion", "compromisos", "fecha_proxima_reunion"]
                 return pd.DataFrame(columns=columns)
             
             return pd.DataFrame(response.data)
         except Exception as e:
-            st.error(f"Error cargando historial: {e}")
-            return pd.DataFrame()
+            st.warning(f"Error cargando historial desde BD: {e}")
+            return Reuniones1to1Adapter.load_historial_fallback()
+    
+    @staticmethod
+    def load_historial_fallback() -> pd.DataFrame:
+        """Fallback para cargar historial desde CSV"""
+        try:
+            from pathlib import Path
+            base_dir = Path(__file__).resolve().parents[1]
+            csv_path = base_dir / "1to1" / "data" / "historial_1to1.csv"
+            
+            if csv_path.exists():
+                df = pd.read_csv(csv_path, dtype=str)
+                required_columns = ["id_participante", "fecha_reunion", "health_energia", "health_carga_trabajo", 
+                                  "health_alineacion_objetivos", "health_notas", "preguntas_generadas",
+                                  "insight_coaching", "notas_reunion", "compromisos", "fecha_proxima_reunion"]
+                for col in required_columns:
+                    if col not in df.columns:
+                        df[col] = None
+                return df[required_columns]
+        except Exception:
+            pass
+        
+        # Fallback final - DataFrame vacío
+        columns = ["id_participante", "fecha_reunion", "health_energia", "health_carga_trabajo", 
+                  "health_alineacion_objetivos", "health_notas", "preguntas_generadas",
+                  "insight_coaching", "notas_reunion", "compromisos", "fecha_proxima_reunion"]
+        return pd.DataFrame(columns=columns)
     
     @staticmethod
     def save_historial(historial_df: pd.DataFrame):
         """Guardar historial (compatible con función original)"""
         if not db.is_connected():
-            return
+            # Fallback: guardar en CSV original
+            try:
+                from pathlib import Path
+                base_dir = Path(__file__).resolve().parents[1]
+                data_dir = base_dir / "1to1" / "data"
+                data_dir.mkdir(parents=True, exist_ok=True)
+                csv_path = data_dir / "historial_1to1.csv"
+                
+                # Asegurar columnas correctas
+                required_columns = ["id_participante", "fecha_reunion", "health_energia", "health_carga_trabajo", 
+                                  "health_alineacion_objetivos", "health_notas", "preguntas_generadas",
+                                  "insight_coaching", "notas_reunion", "compromisos", "fecha_proxima_reunion"]
+                
+                # Filtrar solo las columnas que existen
+                existing_columns = [col for col in required_columns if col in historial_df.columns]
+                df_to_save = historial_df[existing_columns]
+                
+                df_to_save.to_csv(csv_path, index=False)
+                return
+            except Exception as e:
+                st.warning(f"Error guardando historial en CSV: {e}")
+                return
         
         try:
             # Convertir DataFrame a lista de diccionarios
@@ -264,7 +379,30 @@ class Reuniones1to1Adapter:
                 last_record = records[-1]
                 db.client.table('historial_1to1').insert(last_record).execute()
         except Exception as e:
-            st.error(f"Error guardando historial: {e}")
+            st.warning(f"Error guardando historial en BD: {e}")
+            # Fallback a CSV si falla la BD
+            Reuniones1to1Adapter.save_historial_fallback(historial_df)
+    
+    @staticmethod
+    def save_historial_fallback(historial_df: pd.DataFrame):
+        """Fallback para guardar historial en CSV"""
+        try:
+            from pathlib import Path
+            base_dir = Path(__file__).resolve().parents[1]
+            data_dir = base_dir / "1to1" / "data"
+            data_dir.mkdir(parents=True, exist_ok=True)
+            csv_path = data_dir / "historial_1to1.csv"
+            
+            required_columns = ["id_participante", "fecha_reunion", "health_energia", "health_carga_trabajo", 
+                              "health_alineacion_objetivos", "health_notas", "preguntas_generadas",
+                              "insight_coaching", "notas_reunion", "compromisos", "fecha_proxima_reunion"]
+            
+            existing_columns = [col for col in required_columns if col in historial_df.columns]
+            df_to_save = historial_df[existing_columns]
+            
+            df_to_save.to_csv(csv_path, index=False)
+        except Exception as e:
+            st.error(f"Error en fallback de guardado: {e}")
 
 # ============================================================================
 # FUNCIONES DE UTILIDAD
