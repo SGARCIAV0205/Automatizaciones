@@ -6,13 +6,32 @@ from pathlib import Path
 import streamlit as st
 
 # Agregar el directorio raíz al path para imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+root_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(root_dir))
 
-from modules.ui_theme import apply_theme, sidebar_brand
-from modules.reporte_clientes_trimestral import run_reporte_clientes_trimestral
-from modules.openai_client import render_openai_config_sidebar
-from modules.auth import authenticate_app, render_session_footer
-from modules.db_adapters import apply_database_patches
+# Cargar módulos de forma robusta
+try:
+    from modules.ui_theme import apply_theme, sidebar_brand
+    from modules.reporte_clientes_trimestral import run_reporte_clientes_trimestral
+    from modules.openai_client import render_openai_config_sidebar
+    from modules.auth import authenticate_app, render_session_footer
+    from modules.db_adapters import apply_database_patches
+except ImportError as e:
+    # Fallback: cargar auth directamente desde archivo
+    auth_file = root_dir / "modules" / "auth.py"
+    if auth_file.exists():
+        with open(auth_file, 'r', encoding='utf-8') as f:
+            exec(f.read(), globals())
+    
+    # Intentar importar otros módulos
+    try:
+        from modules.ui_theme import apply_theme, sidebar_brand
+        from modules.reporte_clientes_trimestral import run_reporte_clientes_trimestral
+        from modules.openai_client import render_openai_config_sidebar
+        from modules.db_adapters import apply_database_patches
+    except ImportError as e2:
+        st.error(f"Error importando módulos: {e2}")
+        st.stop()
 
 # ---------------------------------------------------------------------
 # Configuración general de la página

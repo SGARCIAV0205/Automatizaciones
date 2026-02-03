@@ -6,11 +6,32 @@ from importlib.machinery import SourceFileLoader
 import streamlit as st
 
 # Agregar el directorio raíz al path para imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+root_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(root_dir))
 
-from modules.ui_theme import apply_theme, sidebar_brand
-from modules.openai_client import render_openai_config_sidebar
-from modules.auth import authenticate_app, render_session_footer
+# Cargar módulos de forma robusta
+try:
+    from modules.ui_theme import apply_theme, sidebar_brand
+    from modules.openai_client import render_openai_config_sidebar
+    from modules.auth import authenticate_app, render_session_footer
+except ImportError as e:
+    # Fallback: cargar auth directamente desde archivo
+    auth_file = root_dir / "modules" / "auth.py"
+    if auth_file.exists():
+        # Ejecutar el archivo auth.py en el namespace global
+        with open(auth_file, 'r', encoding='utf-8') as f:
+            exec(f.read(), globals())
+    else:
+        st.error(f"No se pudo cargar el módulo de autenticación: {e}")
+        st.stop()
+    
+    # Intentar importar otros módulos
+    try:
+        from modules.ui_theme import apply_theme, sidebar_brand
+        from modules.openai_client import render_openai_config_sidebar
+    except ImportError as e2:
+        st.error(f"Error importando otros módulos: {e2}")
+        st.stop()
 
 # --------------------------------------------------
 # Configuración base
