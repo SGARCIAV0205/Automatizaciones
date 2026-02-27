@@ -73,9 +73,11 @@ sidebar_brand()
 render_openai_config_sidebar()
 
 # ---------------------------------------------------------------------
-# Aplicar parches de base de datos
+# Aplicar parches de base de datos (solo si no estamos en módulo externo)
 # ---------------------------------------------------------------------
-apply_database_patches()
+# NOTA: El módulo de Radar Competidores tiene su propio sistema de almacenamiento
+# No aplicamos parches de BD para evitar conflictos
+# apply_database_patches()
 
 # ---------------------------------------------------------------------
 # Ejecutar módulo
